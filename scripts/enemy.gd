@@ -95,7 +95,7 @@ func check_collisions():
 			var overlapping = attack_detection.get_overlapping_bodies()
 			for body in overlapping:
 				if body.name == "Knight":
-					print("[Enemy %s] SWITCHING TARGET: Wall -> Knight at %s" % [name, position])
+					# print("[Enemy %s] SWITCHING TARGET: Wall -> Knight at %s" % [name, position])
 					target_to_attack = body
 					current_state = State.ATTACK
 					return
@@ -113,7 +113,7 @@ func check_collisions():
 		
 		# Prioritize Knight
 		if body.name == "Knight":
-			print("[Enemy %s] TARGET FOUND: Knight at %s" % [name, position])
+			# print("[Enemy %s] TARGET FOUND: Knight at %s" % [name, position])
 			target_to_attack = body
 			current_state = State.ATTACK
 			return
@@ -134,11 +134,11 @@ func check_collisions():
 					break
 			
 			if knight_in_list:
-				print("[Enemy %s] TARGET FOUND: Knight (overrode Wall) at %s" % [name, position])
+				# print("[Enemy %s] TARGET FOUND: Knight (overrode Wall) at %s" % [name, position])
 				current_state = State.ATTACK
 				return
 			else:
-				print("[Enemy %s] TARGET FOUND: Wall at %s" % [name, position])
+				# print("[Enemy %s] TARGET FOUND: Wall at %s" % [name, position])
 				target_to_attack = body
 				current_state = State.ATTACK
 				return
@@ -149,19 +149,6 @@ func check_collisions():
 	# Pass 2: Check Raycast
 	if ray_cast.is_colliding():
 		var collider = ray_cast.get_collider()
-		if is_instance_valid(collider) and collider != self:
-			if collider.name == "Knight":
-				print("[Enemy %s] RAYCAST TARGET: Knight at %s" % [name, position])
-				target_to_attack = collider
-				current_state = State.ATTACK
-				return
-			
-			if collider.is_in_group("wall") or collider.get_collision_layer_value(3):
-				print("[Enemy %s] RAYCAST TARGET: Wall at %s" % [name, position])
-				target_to_attack = collider
-				current_state = State.ATTACK
-				return
-
 			if collider.is_in_group("enemies"):
 				potential_blocked = true
 
@@ -172,7 +159,7 @@ func check_collisions():
 
 	# If nothing detected
 	if current_state == State.ATTACK:
-		print("[Enemy %s] No target, resuming WALK at %s" % [name, position])
+		# print("[Enemy %s] No target, resuming WALK at %s" % [name, position])
 		current_state = State.WALK
 
 func perform_attack():
@@ -199,13 +186,14 @@ func perform_attack():
 		return
 
 	# Deal damage
+	# Deal damage
 	if target_to_attack.has_method("take_damage"):
-		print("[Enemy %s] Attacking %s at %s" % [name, target_to_attack.name, position])
+		# print("[Enemy %s] Attacking %s at %s" % [name, target_to_attack.name, position])
 		target_to_attack.take_damage(damage)
 		time_since_last_attack = attack_cooldown
 		
 		if not is_instance_valid(target_to_attack) or (target_to_attack.has_method("get") and target_to_attack.get("current_health") <= 0):
-			print("[Enemy %s] Target %s defeated!" % [name, target_to_attack.name])
+			# print("[Enemy %s] Target %s defeated!" % [name, target_to_attack.name])
 			target_to_attack = null
 			current_state = State.WALK
 

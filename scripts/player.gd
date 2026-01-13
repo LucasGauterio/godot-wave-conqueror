@@ -77,11 +77,11 @@ func _physics_process(delta):
 func check_auto_attack():
 	if time_since_last_attack <= 0 and current_state != State.ATTACK:
 		var bodies = attack_area.get_overlapping_bodies()
-		if bodies.size() > 0:
-			print("[DEBUG] Knight sees ", bodies.size(), " bodies in attack area")
+		# if bodies.size() > 0:
+		# 	print("[DEBUG] Knight sees ", bodies.size(), " bodies in attack area")
 		for body in bodies:
 			if body != self and (body.is_in_group("enemies") or body.has_method("take_damage")):
-				print("[DEBUG] Knight attacking: ", body.name)
+				# print("[DEBUG] Knight attacking: ", body.name)
 				enter_state(State.ATTACK)
 				perform_attack()
 				break
@@ -139,7 +139,7 @@ func enter_state(new_state: State):
 	if current_state == new_state:
 		return
 		
-	print("[Knight] State Change: %s -> %s at %s" % [State.keys()[current_state], State.keys()[new_state], position])
+	# print("[Knight] State Change: %s -> %s at %s" % [State.keys()[current_state], State.keys()[new_state], position])
 	current_state = new_state
 	
 	if new_state == State.ATTACK:

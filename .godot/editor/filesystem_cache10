@@ -30,12 +30,12 @@ defeat_screen.tscn::PackedScene::-1::1768319257::0::1::::<><><>0<>0<><>::res://s
 hud.tscn::PackedScene::-1::1768310312::0::1::::<><><>0<>0<><>::res://scripts/ui/hud.gd
 menu.tscn::PackedScene::-1::1768309085::0::1::::<><><>0<>0<><>::res://scripts/menu.gd
 pause_menu.tscn::PackedScene::-1::1768309225::0::1::::<><><>0<>0<><>::res://scripts/pause_menu.gd
-::res://scripts/::1768320927
-enemy.gd::GDScript::3204278666643802310::1768321205::0::1::::EnemyBase<>CharacterBody2D<><>0<>0<><>::
+::res://scripts/::1768321248
+enemy.gd::GDScript::3204278666643802310::1768321420::0::1::::EnemyBase<>CharacterBody2D<><>0<>0<><>::
 main.gd::GDScript::7383387134842570249::1768319257::0::1::::<>Node2D<><>0<>0<><>::
 menu.gd::GDScript::9040355277756017013::1768309083::0::1::::<>Control<><>0<>0<><>::
 pause_menu.gd::GDScript::1448010763205021894::1768309340::0::1::::<>Control<><>0<>0<><>::
-player.gd::GDScript::1062526665142210616::1768321225::0::1::::<>CharacterBody2D<><>0<>0<><>::
+player.gd::GDScript::1062526665142210616::1768321396::0::1::::<>CharacterBody2D<><>0<>0<><>::
 test_runner.gd::GDScript::5963923892616839211::1768319257::0::1::::<>SceneTree<><>0<>0<><>::
 wall.gd::GDScript::2456282640495728534::1768319257::0::1::::KingdomWall<>StaticBody2D<><>0<>0<><>::
 wave_manager.gd::GDScript::3685114338364264719::1768313796::0::1::::<>Node<><>0<>0<><>::
