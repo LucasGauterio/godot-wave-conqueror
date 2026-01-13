@@ -130,10 +130,10 @@ func _draw():
 	var head_pos = Vector2(0, -20 + bob_offset)
 	var torso_pos = Vector2(0, -5 + bob_offset)
 	
-	# Legs (Humanoid)
-	var leg_swing = sin(walk_timer * 0.5) * 8.0 if walk_timer > 0 else 0.0
-	draw_line(Vector2(-6, 5), Vector2(-8 - leg_swing, 25), armor_color, 4)
-	draw_line(Vector2(6, 5), Vector2(8 + leg_swing, 25), armor_color, 4)
+	# Legs (Humanoid) - Simple length bobbing
+	var leg_ext = abs(sin(walk_timer * 0.5)) * 10.0 if walk_timer > 0 else 0.0
+	draw_line(Vector2(-6, 5), Vector2(-6, 15 + leg_ext), armor_color, 4) # Left
+	draw_line(Vector2(6, 5), Vector2(6, 25 - leg_ext), armor_color, 4)  # Right
 	
 	# Torso
 	draw_rect(Rect2(-10, -10 + bob_offset, 20, 18), armor_color)

@@ -108,10 +108,10 @@ func _draw():
 	# 1. Draw Humanoid Goblin
 	var head_pos = Vector2(0, -18 + bob_offset)
 	
-	# Spindly Legs (Humanoid)
-	var leg_swing = sin(walk_timer * 0.5) * 10.0 if walk_timer > 0 else 0.0
-	draw_line(Vector2(-5, 5), Vector2(-7 - leg_swing, 28), body_color, 3)
-	draw_line(Vector2(5, 5), Vector2(7 + leg_swing, 28), body_color, 3)
+	# Spindly Legs (Humanoid) - Simple length bobbing
+	var leg_ext = abs(sin(walk_timer * 0.5)) * 12.0 if walk_timer > 0 else 0.0
+	draw_line(Vector2(-5, 5), Vector2(-5, 15 + leg_ext), body_color, 3) # Left
+	draw_line(Vector2(5, 5), Vector2(5, 27 - leg_ext), body_color, 3)  # Right
 	
 	# Hunched Torso
 	var torso_poly = [
