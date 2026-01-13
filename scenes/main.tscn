@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://main_scene_01"]
+
+[ext_resource type="PackedScene" uid="uid://knight_01" path="res://scenes/player/knight.tscn" id="1_knight"]
+[ext_resource type="PackedScene" uid="uid://pause_menu_01" path="res://scenes/ui/pause_menu.tscn" id="2_pause"]
+[ext_resource type="PackedScene" uid="uid://hud_01" path="res://scenes/ui/hud.tscn" id="3_hud"]
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="Knight" parent="." instance=ExtResource("1_knight")]
+position = Vector2(576, 500)
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="HUD" parent="UI" instance=ExtResource("3_hud")]
+
+[node name="MobileMenuButton" type="Button" parent="UI"]
+offset_left = 20.0
+offset_top = 90.0
+offset_right = 100.0
+offset_bottom = 121.0
+text = "Menu"
+
+[node name="PauseMenu" parent="UI" instance=ExtResource("2_pause")]
+
+[connection signal="pressed" from="UI/MobileMenuButton" to="UI/PauseMenu" method="toggle_pause"]
