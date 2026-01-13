@@ -105,28 +105,51 @@ func _draw():
 	
 	var bob_offset = sin(walk_timer) * 2.0 if walk_timer > 0 else 0.0
 	
-	# 1. Draw Body (Capsule 30x60 centered)
-	draw_circle(Vector2(0, -15 + bob_offset), 15, body_color) # Bob the head
-	draw_circle(Vector2(0, 15), 15, body_color) # Feet stay grounded
-	draw_rect(Rect2(-15, -15, 30, 30), body_color)
+	# 1. Draw Humanoid Goblin
+	var head_pos = Vector2(0, -18 + bob_offset)
 	
+	# Spindly Legs (Humanoid)
+	var leg_swing = sin(walk_timer * 0.5) * 10.0 if walk_timer > 0 else 0.0
+	draw_line(Vector2(-5, 5), Vector2(-7 - leg_swing, 28), body_color, 3)
+	draw_line(Vector2(5, 5), Vector2(7 + leg_swing, 28), body_color, 3)
+	
+	# Hunched Torso
+	var torso_poly = [
+		Vector2(-8, -10 + bob_offset), Vector2(8, -10 + bob_offset),
+		Vector2(10, 10), Vector2(-10, 10)
+	]
+	draw_colored_polygon(torso_poly, body_color)
+	draw_rect(Rect2(-6, 2, 12, 8), detail_color) # Loincloth
+	
+	# Head
+	draw_circle(head_pos, 9, body_color)
+	
+	# Pointed Ears
+	var ear_y = head_pos.y - 2
+	draw_colored_polygon([Vector2(-8, ear_y), Vector2(-15, ear_y - 5), Vector2(-8, ear_y + 4)], body_color)
+	draw_colored_polygon([Vector2(8, ear_y), Vector2(15, ear_y - 5), Vector2(8, ear_y + 4)], body_color)
+	
+	# Spindly Arms
+	draw_line(Vector2(-8, -5 + bob_offset), Vector2(-12, 10 + bob_offset), body_color, 3) # Left Arm
+	draw_line(Vector2(8, -5 + bob_offset), Vector2(12, 10 + bob_offset), body_color, 3) # Right Arm
+
 	# 2. Draw Eyes (Black dots) based on direction
-	var eye_pos = Vector2(0, -20 + bob_offset)
+	var eye_y = head_pos.y
 	if last_face_direction.y > 0.5: # Down
-		draw_circle(eye_pos + Vector2(-5, 0), 2, Color.BLACK)
-		draw_circle(eye_pos + Vector2(5, 0), 2, Color.BLACK)
+		draw_circle(Vector2(-4, eye_y), 1.5, Color.BLACK)
+		draw_circle(Vector2(4, eye_y), 1.5, Color.BLACK)
 	elif last_face_direction.y < -0.5: # Up
 		pass
 	else: # Sides
 		var side = 1 if last_face_direction.x > 0 else -1
-		draw_circle(eye_pos + Vector2(5 * side, 0), 2, Color.BLACK)
+		draw_circle(Vector2(4 * side, eye_y), 1.5, Color.BLACK)
 	
 	# 3. Draw Weapon (Club) during attack
 	if current_state == State.ATTACK or attack_anim_timer > 0:
 		var weapon_reach = 15.0 * sin(attack_anim_timer * PI)
-		var weapon_pos = last_face_direction * (20 + weapon_reach)
-		draw_line(Vector2.ZERO, weapon_pos, detail_color, 4)
-		draw_circle(weapon_pos, 6, detail_color)
+		var weapon_dir = last_face_direction * (18 + weapon_reach)
+		draw_line(Vector2(0, bob_offset), weapon_dir, detail_color, 4)
+		draw_circle(weapon_dir, 6, detail_color)
 
 	# 4. Optional: Draw Debug Hitbox Outline
 	if show_debug_hitbox:

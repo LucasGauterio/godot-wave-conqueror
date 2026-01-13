@@ -108,35 +108,52 @@ func _draw():
 	var bob_offset = sin(walk_timer) * 2.0 if walk_timer > 0 else 0.0
 	var body_pos = Vector2.ZERO # Stay centered on hitbox
 	
-	# 1. Draw Horse if mounted (Base)
+	# 1. Draw Horse if mounted (Base Animal Shape)
 	if is_mounted:
-		var horse_color = Color(0.4, 0.2, 0.1) # Dark Brown
-		# Draw a simple ellipse using a transformed circle
-		var old_transform = get_canvas_transform()
-		draw_circle(Vector2(0, 10), 20, horse_color) # Simplified for now to avoid transform complexity
+		var horse_color = Color(0.4, 0.2, 0.1)
+		# Body
+		draw_circle(Vector2(0, 15), 18, horse_color)
+		# Head/Neck
+		var h_dir = 1 if last_direction > 0 else -1
+		draw_line(Vector2(0, 5), Vector2(15 * h_dir, -5), horse_color, 8)
+		draw_circle(Vector2(15 * h_dir, -5), 6, horse_color)
 
 	# 2. Draw Cape (Behind Body)
-	if face_direction.y >= 0: # Facing Down or Side
+	if face_direction.y >= 0:
 		var cape_poly = [
-			Vector2(-12, -15), Vector2(12, -15),
-			Vector2(15, 20), Vector2(-15, 20)
+			Vector2(-10, -5), Vector2(10, -5),
+			Vector2(12, 25), Vector2(-12, 25)
 		]
 		draw_colored_polygon(cape_poly, cape_color)
 
-	# 3. Draw Body (Capsule 30x60 centered)
-	draw_circle(Vector2(0, -15 + bob_offset), 15, armor_color) # Bob the head
-	draw_circle(Vector2(0, 15), 15, armor_color) # Feet stay grounded
-	draw_rect(Rect2(-15, -15, 30, 30), armor_color)
+	# 3. Draw Humanoid Knight
+	var head_pos = Vector2(0, -20 + bob_offset)
+	var torso_pos = Vector2(0, -5 + bob_offset)
+	
+	# Legs (Humanoid)
+	var leg_swing = sin(walk_timer * 0.5) * 8.0 if walk_timer > 0 else 0.0
+	draw_line(Vector2(-6, 5), Vector2(-8 - leg_swing, 25), armor_color, 4)
+	draw_line(Vector2(6, 5), Vector2(8 + leg_swing, 25), armor_color, 4)
+	
+	# Torso
+	draw_rect(Rect2(-10, -10 + bob_offset, 20, 18), armor_color)
+	
+	# Head/Helm
+	draw_circle(head_pos, 10, armor_color)
+	
+	# Arms (Humanoid)
+	draw_line(Vector2(-10, -5 + bob_offset), Vector2(-14, 5 + bob_offset), armor_color, 4) # Left Arm
+	draw_line(Vector2(10, -5 + bob_offset), Vector2(14, 5 + bob_offset), armor_color, 4) # Right Arm
 
-	# 4. Draw Helm Visor (on the bobbing head)
-	var visor_y = -18 + bob_offset
+	# 4. Draw Helm Visor
+	var visor_y = head_pos.y - 2
 	if face_direction.y > 0.5: # Down
-		draw_rect(Rect2(-8, visor_y, 16, 3), eye_color)
+		draw_rect(Rect2(-6, visor_y, 12, 2), eye_color)
 	elif face_direction.y < -0.5: # Up
 		pass 
 	else: # Side
 		var side = 1 if face_direction.x > 0 else -1
-		draw_rect(Rect2(5 * side if side > 0 else -15, visor_y, 10, 3), eye_color)
+		draw_rect(Rect2(2 * side if side > 0 else -10, visor_y, 8, 2), eye_color)
 
 	# 5. Draw Off-hand
 	if off_hand != OffHandType.NONE:
