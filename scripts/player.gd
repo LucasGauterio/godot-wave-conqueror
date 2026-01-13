@@ -174,6 +174,12 @@ func _draw():
 		draw_arc(Vector2(0, 15), 15, 0, TAU, 16, outline_color, 1.0)
 		draw_line(Vector2(-15, -15), Vector2(-15, 15), outline_color, 1.0)
 		draw_line(Vector2(15, -15), Vector2(15, 15), outline_color, 1.0)
+		
+		# Draw weapon range (Circle)
+		if attack_area and attack_area.has_node("CollisionShape2D"):
+			var shape = attack_area.get_node("CollisionShape2D").shape
+			if shape is CircleShape2D:
+				draw_arc(Vector2.ZERO, shape.radius, 0, TAU, 32, Color(1, 0.2, 0.2, 0.2), 2.0)
 
 func check_auto_attack():
 	if time_since_last_attack <= 0 and current_state != State.ATTACK:
