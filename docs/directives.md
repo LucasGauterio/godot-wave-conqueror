@@ -25,7 +25,7 @@ This document summarizes all user requests, constraints, and established pattern
 ## 2. Gameplay Mechanics & Rules
 
 - **Movement System**:
-  - **Player**: Moves horizontally only.
+  - **Player**: Moves freely (Up/Down/Left/Right).
   - **Enemies**: Move vertically in "lanes".
   - **Combat**: Player attacks enemies in _adjacent_ cells.
 - **Progression**:

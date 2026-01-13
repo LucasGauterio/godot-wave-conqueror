@@ -4,7 +4,7 @@
 
 ## 🚀 Features
 
-- **Lane-Based Combat**: Fast-paced horizontal movement responding to vertical threats.
+- **Lane-Based Combat**: Fast-paced 4-directional movement responding to vertical threats.
 - **Progression**: Level up your Knight, upgrade your Horse, and fortify your Walls.
 - **Cross-Platform**: Designed for PC, Console, and Mobile (Touch support included).
 - **Economy**: Strategic gold management—repair walls or buy legendary gear?

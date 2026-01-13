@@ -9,7 +9,7 @@ The first game is a 2D wave defender game where the player controls one knight t
 
 ### Movement & Controls
 
-- **Player**: Moves horizontally (Left/Right) across the base of lanes. Can't leave the current zone while battle is happening.
+- **Player**: Moves freely in 4 directions (Up/Down/Left/Right) within the current zone. Can't leave the current zone while battle is happening.
 - **Enemies**: Move vertically (Top-Down) in lanes.
 - **Combat**:
   - Player can attack Front, Left, and Right.
