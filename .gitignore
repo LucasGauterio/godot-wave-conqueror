@@ -1,0 +1,21 @@
+# Godot-specific ignores
+.import/
+export.cfg
+export_presets.cfg
+
+# Imported formats
+*.png.import
+*.jpg.import
+*.jpeg.import
+*.ogg.import
+*.wav.import
+*.mp3.import
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Build
+build/
