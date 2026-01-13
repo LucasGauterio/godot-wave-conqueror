@@ -1,54 +1,55 @@
 [gd_scene load_steps=4 format=3 uid="uid://knight_01"]
 
-[ext_resource type="Texture2D" uid="uid://knight_tex" path="res://assets/knight.png" id="2_texture"]
+[ext_resource type="Texture2D" uid="uid://woifs270p8i2" path="res://assets/knight.jpg" id="2_texture"]
+[ext_resource type="Script" path="res://scripts/player.gd" id="1_script"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_1"]
 atlas = ExtResource("2_texture")
-region = Rect2(0, 0, 32, 32)
+region = Rect2(0, 0, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_2"]
 atlas = ExtResource("2_texture")
-region = Rect2(32, 0, 32, 32)
+region = Rect2(256, 0, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_3"]
 atlas = ExtResource("2_texture")
-region = Rect2(64, 0, 32, 32)
+region = Rect2(512, 0, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_4"]
 atlas = ExtResource("2_texture")
-region = Rect2(96, 0, 32, 32)
+region = Rect2(768, 0, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_1"]
 atlas = ExtResource("2_texture")
-region = Rect2(0, 32, 32, 32)
+region = Rect2(0, 341, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_2"]
 atlas = ExtResource("2_texture")
-region = Rect2(32, 32, 32, 32)
+region = Rect2(256, 341, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_3"]
 atlas = ExtResource("2_texture")
-region = Rect2(64, 32, 32, 32)
+region = Rect2(512, 341, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_4"]
 atlas = ExtResource("2_texture")
-region = Rect2(96, 32, 32, 32)
+region = Rect2(768, 341, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_1"]
 atlas = ExtResource("2_texture")
-region = Rect2(0, 64, 32, 32)
+region = Rect2(0, 682, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_2"]
 atlas = ExtResource("2_texture")
-region = Rect2(32, 64, 32, 32)
+region = Rect2(256, 682, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_3"]
 atlas = ExtResource("2_texture")
-region = Rect2(64, 64, 32, 32)
+region = Rect2(512, 682, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_4"]
 atlas = ExtResource("2_texture")
-region = Rect2(96, 64, 32, 32)
+region = Rect2(768, 682, 256, 341)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_knight"]
 animations = [{
@@ -105,29 +106,29 @@ animations = [{
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_01"]
-radius = 10.0
-height = 30.0
+radius = 20.0
+height = 60.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_attack"]
 size = Vector2(20, 30)
 
 [node name="Knight" type="CharacterBody2D"]
+collision_layer = 1
+collision_mask = 6
+motion_mode = 1
 script = ExtResource("1_script")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 texture_filter = 1
+scale = Vector2(0.3, 0.3)
 sprite_frames = SubResource("SpriteFrames_knight")
 animation = &"idle"
 autoplay = "idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 15)
 shape = SubResource("CapsuleShape2D_01")
 
-[node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(2, 2)
-limit_bottom = 648
-limit_smoothed = true
-position_smoothing_enabled = true
 
 [node name="AttackArea" type="Area2D" parent="."]
 collision_layer = 0

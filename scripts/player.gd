@@ -2,7 +2,7 @@ extends CharacterBody2D
 
 enum State { IDLE, WALK, RUN, ATTACK, KNOCKBACK, DIE }
 
-@export var speed: float = 200.0
+@export var speed: float = 350.0
 @export var run_speed_multiplier: float = 1.6
 @export var mounted_speed_multiplier: float = 1.0 # Will be updated by horse level
 

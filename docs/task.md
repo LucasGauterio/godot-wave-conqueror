@@ -40,7 +40,7 @@
     - [ ] Shop UI and Buy/Sell logic <!-- id: 27 -->
     - [ ] Chest/Storage system <!-- id: 28 -->
   - [ ] Defense & Base Building <!-- id: 29 -->
-    - [ ] Wall scene with repair/upgrade <!-- id: 30 -->
+    - [x] Wall scene with repair/upgrade (Kingdom defense line) <!-- id: 30 -->
     - [ ] Static defenses (Archers, Ballistae, Traps) <!-- id: 31 -->
   - [ ] Wave & Game Management <!-- id: 32 -->
     - [x] Wave spawning and difficulty scaling <!-- id: 33 -->

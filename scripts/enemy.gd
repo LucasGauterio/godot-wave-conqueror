@@ -75,8 +75,8 @@ func check_collisions():
 		var collision = get_slide_collision(i)
 		var collider = collision.get_collider()
 		
-		# Check if we hit the Player (or specifically a node named "Knight" or implicitly by group)
-		if collider and collider.name == "Knight": # Ideally check group or class in future
+		# Check if we hit the Player or the Wall
+		if collider and (collider.name == "Knight" or collider.is_in_group("wall")):
 			current_state = State.ATTACK
 			break
 

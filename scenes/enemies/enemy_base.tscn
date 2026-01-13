@@ -1,54 +1,55 @@
 [gd_scene load_steps=3 format=3 uid="uid://enemy_base_01"]
 
-[ext_resource type="Texture2D" uid="uid://goblin_tex" path="res://assets/goblin.png" id="2_texture"]
+[ext_resource type="Texture2D" uid="uid://sdpga0o4sln5" path="res://assets/goblin.jpg" id="2_texture"]
+[ext_resource type="Script" path="res://scripts/enemy.gd" id="1_enemy"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_1"]
 atlas = ExtResource("2_texture")
-region = Rect2(0, 0, 32, 32)
+region = Rect2(0, 0, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_2"]
 atlas = ExtResource("2_texture")
-region = Rect2(32, 0, 32, 32)
+region = Rect2(256, 0, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_3"]
 atlas = ExtResource("2_texture")
-region = Rect2(64, 0, 32, 32)
+region = Rect2(512, 0, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_4"]
 atlas = ExtResource("2_texture")
-region = Rect2(96, 0, 32, 32)
+region = Rect2(768, 0, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_1"]
 atlas = ExtResource("2_texture")
-region = Rect2(0, 32, 32, 32)
+region = Rect2(0, 341, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_2"]
 atlas = ExtResource("2_texture")
-region = Rect2(32, 32, 32, 32)
+region = Rect2(256, 341, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_3"]
 atlas = ExtResource("2_texture")
-region = Rect2(64, 32, 32, 32)
+region = Rect2(512, 341, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_4"]
 atlas = ExtResource("2_texture")
-region = Rect2(96, 32, 32, 32)
+region = Rect2(768, 341, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_die_1"]
 atlas = ExtResource("2_texture")
-region = Rect2(0, 64, 32, 32)
+region = Rect2(0, 682, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_die_2"]
 atlas = ExtResource("2_texture")
-region = Rect2(32, 64, 32, 32)
+region = Rect2(256, 682, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_die_3"]
 atlas = ExtResource("2_texture")
-region = Rect2(64, 64, 32, 32)
+region = Rect2(64, 682, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_die_4"]
 atlas = ExtResource("2_texture")
-region = Rect2(96, 64, 32, 32)
+region = Rect2(96, 682, 256, 341)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_goblin"]
 animations = [{
@@ -105,20 +106,23 @@ animations = [{
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_enemy"]
-radius = 12.0
-height = 34.0
+radius = 20.0
+height = 60.0
 
 [node name="EnemyBase" type="CharacterBody2D"]
+motion_mode = 1
 script = ExtResource("1_enemy")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 texture_filter = 1
+scale = Vector2(0.3, 0.3)
 sprite_frames = SubResource("SpriteFrames_goblin")
 animation = &"walk"
 autoplay = "walk"
-flip_v = true 
+flip_v = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 15)
 shape = SubResource("CapsuleShape2D_enemy")
 # Enemies on layer 2 (Enemies) and mask 1 (Player/Walls)
 collision_layer = 2
