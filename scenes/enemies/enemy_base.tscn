@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://enemy_base_01"]
+[gd_scene load_steps=7 format=3 uid="uid://enemy_base_01"]
 
 [ext_resource type="Texture2D" uid="uid://sdpga0o4sln5" path="res://assets/goblin.jpg" id="2_texture"]
 [ext_resource type="Script" path="res://scripts/enemy.gd" id="1_enemy"]
@@ -14,10 +14,6 @@ region = Rect2(256, 0, 256, 341)
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_3"]
 atlas = ExtResource("2_texture")
 region = Rect2(512, 0, 256, 341)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_walk_4"]
-atlas = ExtResource("2_texture")
-region = Rect2(768, 0, 256, 341)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_1"]
 atlas = ExtResource("2_texture")
@@ -120,7 +116,16 @@ height = 60.0
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_detection"]
 size = Vector2(40, 60)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
+bg_color = Color(0.15, 0.1, 0.1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fg"]
+bg_color = Color(0.8, 0, 0, 1)
+
+# Enemies on layer 2 (Enemies) and mask 3 (Wall) + 4 (Wall/Boundaries)
 [node name="EnemyBase" type="CharacterBody2D" groups=["enemies"]]
+collision_layer = 2
+collision_mask = 12
 motion_mode = 1
 script = ExtResource("1_enemy")
 
@@ -135,9 +140,6 @@ flip_v = false
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 15)
 shape = SubResource("CapsuleShape2D_enemy")
-# Enemies on layer 2 (Enemies) and mask 1 (Player) + 3 (Wall) + 4 (Wall/Boundaries)
-collision_layer = 2
-collision_mask = 13
 
 [node name="AttackDetection" type="Area2D" parent="."]
 collision_layer = 0
@@ -150,3 +152,13 @@ shape = SubResource("RectangleShape2D_detection")
 [node name="RayCast2D" type="RayCast2D" parent="."]
 target_position = Vector2(0, 60)
 collision_mask = 7
+
+[node name="HealthBar" type="ProgressBar" parent="."]
+offset_left = -20.0
+offset_top = -30.0
+offset_right = 20.0
+offset_bottom = -25.0
+theme_override_styles/background = SubResource("StyleBoxFlat_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_fg")
+value = 100.0
+show_percentage = false

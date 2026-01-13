@@ -20,8 +20,13 @@ signal died(enemy)
 @export var attack_cooldown: float = 1.0
 var time_since_last_attack: float = 0.0
 
+@onready var health_bar = $HealthBar
+
 func _ready():
 	current_health = max_health
+	if health_bar:
+		health_bar.max_value = max_health
+		health_bar.value = current_health
 
 var is_blocked: bool = false
 
@@ -35,8 +40,8 @@ func _physics_process(delta):
 	# Reset blocked status each frame
 	is_blocked = false
 	
-	if current_state == State.WALK:
-		check_collisions() # This will set target_to_attack or is_blocked
+	# Always check collisions to update state
+	check_collisions()
 	
 	match current_state:
 		State.WALK:
@@ -70,12 +75,10 @@ func update_animations():
 			anim_name = "die"
 	
 	if animated_sprite.sprite_frames.has_animation(anim_name):
-		# Only change if different to avoid restarting loop unless needed
 		if animated_sprite.animation != anim_name:
 			animated_sprite.play(anim_name)
 
 func move_forward(delta):
-	# Enemies move vertically down (positive Y)
 	velocity.y = speed
 	velocity.x = 0
 
@@ -85,6 +88,15 @@ func move_forward(delta):
 var target_to_attack: Node2D = null
 
 func check_collisions():
+	# If we have a target, check if it's still overlapping or valid
+	if is_instance_valid(target_to_attack):
+		if target_to_attack in attack_detection.get_overlapping_bodies():
+			current_state = State.ATTACK
+			return
+		else:
+			target_to_attack = null
+			current_state = State.WALK
+
 	# 1. Check overlapping bodies in the front detection area
 	var overlapping = attack_detection.get_overlapping_bodies()
 	for body in overlapping:
@@ -115,9 +127,19 @@ func check_collisions():
 			is_blocked = true
 			return
 
+	# If nothing detected
+	if current_state == State.ATTACK:
+		current_state = State.WALK
+
 func perform_attack():
 	# If target is gone or dead, look for a new one or walk
 	if not is_instance_valid(target_to_attack):
+		target_to_attack = null
+		current_state = State.WALK
+		return
+
+	# Check if target is still in range
+	if not (target_to_attack in attack_detection.get_overlapping_bodies()):
 		target_to_attack = null
 		current_state = State.WALK
 		return
@@ -126,13 +148,17 @@ func perform_attack():
 	if target_to_attack.has_method("take_damage"):
 		target_to_attack.take_damage(damage)
 		time_since_last_attack = attack_cooldown
-		# Double check if target is killed immediately
-		if target_to_attack == null or (target_to_attack.has_method("get") and target_to_attack.get("current_health") <= 0):
+		
+		# Check if target is killed immediately
+		if not is_instance_valid(target_to_attack) or (target_to_attack.has_method("get") and target_to_attack.get("current_health") <= 0):
 			target_to_attack = null
 			current_state = State.WALK
 
 func take_damage(amount: int, knockback_force: float = 0.0):
 	current_health -= amount
+	if health_bar:
+		health_bar.value = current_health
+	
 	if current_health <= 0:
 		die()
 	else:
