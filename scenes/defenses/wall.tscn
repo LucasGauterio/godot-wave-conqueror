@@ -1,18 +1,20 @@
 [gd_scene load_steps=5 format=3 uid="uid://kingdom_wall_01"]
 
 [ext_resource type="Script" path="res://scripts/wall.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://fence_tex" path="res://assets/wooden_fence.png" id="2_texture"]
+[ext_resource type="Texture2D" uid="uid://b0d51dcmob3xb" path="res://assets/wooden_fence.jpg" id="2_texture"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
-size = Vector2(1152, 40)
+size = Vector2(1152, 100)
 
 [node name="KingdomWall" type="StaticBody2D"]
+texture_repeat = 1
 collision_layer = 4
 collision_mask = 3
 script = ExtResource("1_script")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture_filter = 1
+texture_repeat = 1
 texture = ExtResource("2_texture")
 region_enabled = true
 region_rect = Rect2(0, 0, 1152, 64)
