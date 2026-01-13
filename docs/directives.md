@@ -28,10 +28,16 @@ This document summarizes all user requests, constraints, and established pattern
   - **Player**: Moves freely (Up/Down/Left/Right).
   - **Enemies**: Move vertically in "lanes".
   - **Unit Separation**: Actors do not physically push each other. Use `velocity = Vector2.ZERO` and detection areas (is_blocked) to stop movement when obstacles or allies are detected.
+  - **Hitbox Standard**: All actors (Player and Enemies) use a Capsule hitbox with Width 30px and Height 60px.
 - **Combat**:
   - **Auto-Attack**: Actors automatically attack targets in their strike zones (Area2D).
   - **Target Priority**: Enemies/Goblins MUST prioritize the Player (Knight) or Wall over their own allies.
   - **Switching**: If already attacking a lower-priority target (e.g. Wall), they MUST switch to a higher-priority target (e.g. Knight) if it enters range.
+  - **Weapon Range**: Weapon reach adds to the combat circle radius.
+- **Visuals**:
+  - **Colors**: Player body/weapon hitboxes must be Red. Enemy body hitboxes must be Green.
+  - **Scaling**: Enemies increase in size by 10% per tier (Common=1.0, Elite=1.1, Boss=1.2, etc.). Sprites must scale with hitboxes.
+  - **Transparency**: Assets must have transparent backgrounds.
 - **Progression**:
   - **Mounts**: Permanent speed/stat upgrade. No dismount mechanic.
   - **Territory**:
@@ -64,7 +70,10 @@ Before marking a task as "Done":
 3. [ ] Does it adhere to the "Lane-based" and "Chest-only loot" rules?
 4. [ ] Is the documentation updated?
 5. [ ] Have you updated directives with any new technical learnings?
-6. [ ] Have you committed and pushed the changes?
+6. [ ] Is the code compatible with Mobile/Console?
+7. [ ] Do Hitboxes follow the 30x60 Capsule standard?
+8. [ ] Is scaling correctly applied based on Enemy Tier (+10% per tier)?
+9. [ ] Are Hitbox colors correctly set (Red for Player, Green for Enemies)?
 
 ## 5. Technical Standards (Anti-Patterns to Avoid)
 

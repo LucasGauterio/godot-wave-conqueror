@@ -2,11 +2,14 @@ extends CharacterBody2D
 class_name EnemyBase
 
 enum State { WALK, ATTACK, KNOCKBACK, DIE }
+enum Tier { COMMON, ELITE, BOSS, COMMANDER_BOSS, FINAL_BOSS }
 
 @export var speed: float = 50.0
 @export var max_health: int = 10
 @export var damage: int = 1
 @export var score_value: int = 10
+@export var tier: Tier = Tier.COMMON
+@export var show_debug_hitbox: bool = true
 
 var current_health: int
 var current_state: State = State.WALK
@@ -24,6 +27,23 @@ var time_since_last_attack: float = 0.0
 
 func _ready():
 	current_health = max_health
+	if health_bar:
+		health_bar.max_value = max_health
+		health_bar.value = current_health
+	
+	apply_tier_scaling()
+	queue_redraw()
+
+func apply_tier_scaling():
+	# Scaling: +10% cumulatively
+	var scaling_factor = 1.0 + (tier * 0.1)
+	self.scale = Vector2(scaling_factor, scaling_factor)
+	
+	# Adjust stats based on tier
+	max_health = int(max_health * scaling_factor)
+	current_health = max_health
+	damage = int(damage * scaling_factor)
+	
 	if health_bar:
 		health_bar.max_value = max_health
 		health_bar.value = current_health
@@ -58,25 +78,51 @@ func _physics_process(delta):
 
 	move_and_slide()
 	update_animations()
+	if show_debug_hitbox:
+		queue_redraw()
+
+func _draw():
+	if not show_debug_hitbox:
+		return
+		
+	# Draw body hitbox (Green Capsule)
+	# Capsule is 30x60 => radius 15, height 60
+	# Godot's draw_rect is easier or we can draw the shape
+	var color = Color(0, 1, 0, 0.5) # Green with alpha
+	var rect = Rect2(-15, -15, 30, 60) # Approximating capsule for visibility
+	# Draw circle top/bottom and rect middle
+	draw_circle(Vector2(0, -15), 15, color)
+	draw_circle(Vector2(0, 15), 15, color)
+	draw_rect(Rect2(-15, -15, 30, 30), color)
 
 func update_animations():
-	# Simple state-to-animation mapping
-	var anim_name = "walk"
+	var dir_suffix = "_down" # Default
 	
+	if velocity.length() > 0.1:
+		if abs(velocity.x) > abs(velocity.y):
+			dir_suffix = "_right" if velocity.x > 0 else "_left"
+		else:
+			dir_suffix = "_down" if velocity.y > 0 else "_up"
+	
+	var state_name = "idle"
 	match current_state:
-		State.WALK:
-			if is_blocked:
-				anim_name = "idle"
-			else:
-				anim_name = "walk"
-		State.ATTACK:
-			anim_name = "attack"
-		State.DIE:
-			anim_name = "die"
+		State.WALK: 
+			state_name = "idle" if is_blocked else "walk"
+		State.ATTACK: state_name = "attack"
+		State.DIE: state_name = "die"
 	
-	if animated_sprite.sprite_frames.has_animation(anim_name):
-		if animated_sprite.animation != anim_name:
-			animated_sprite.play(anim_name)
+	var anim = state_name + dir_suffix
+	if animated_sprite.sprite_frames.has_animation(anim):
+		if animated_sprite.animation != anim:
+			animated_sprite.play(anim)
+	elif animated_sprite.sprite_frames.has_animation(state_name):
+		# Fallback to non-directional
+		if animated_sprite.animation != state_name:
+			animated_sprite.play(state_name)
+		if dir_suffix == "_left":
+			animated_sprite.flip_h = true
+		elif dir_suffix == "_right":
+			animated_sprite.flip_h = false
 
 func move_forward(delta):
 	velocity.y = speed

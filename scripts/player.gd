@@ -9,6 +9,7 @@ enum State { IDLE, WALK, RUN, ATTACK, KNOCKBACK, DIE }
 var current_state: State = State.IDLE
 var is_mounted: bool = false
 var last_direction: float = 1.0
+@export var show_debug_hitbox: bool = true
 
 @onready var animated_sprite = $AnimatedSprite2D
 @onready var collision_shape = $CollisionShape2D
@@ -73,6 +74,26 @@ func _physics_process(delta):
 	move_and_slide()
 	update_animations()
 	update_attack_direction()
+	if show_debug_hitbox:
+		queue_redraw()
+
+func _draw():
+	if not show_debug_hitbox:
+		return
+		
+	# Draw body hitbox (Red Capsule)
+	# Capsule is 30x60 => radius 15, height 60
+	var color = Color(1, 0, 0, 0.5) 
+	draw_circle(Vector2(0, -15), 15, color)
+	draw_circle(Vector2(0, 15), 15, color)
+	draw_rect(Rect2(-15, -15, 30, 30), color)
+	
+	# Draw weapon range (Red Circle)
+	if attack_area and attack_area.has_node("CollisionShape2D"):
+		var shape = attack_area.get_node("CollisionShape2D").shape
+		if shape is CircleShape2D:
+			var weapon_color = Color(1, 0.2, 0.2, 0.3)
+			draw_circle(attack_area.position, shape.radius, weapon_color)
 
 func check_auto_attack():
 	if time_since_last_attack <= 0 and current_state != State.ATTACK:
@@ -150,22 +171,35 @@ func enter_state(new_state: State):
 			)
 
 func update_animations():
-	var anim = "idle"
+	var dir_suffix = "_down" # Default
 	
-	if last_direction != 0:
-		animated_sprite.flip_h = last_direction < 0
+	if velocity.length() > 0.1:
+		if abs(velocity.x) > abs(velocity.y):
+			dir_suffix = "_right" if velocity.x > 0 else "_left"
+		else:
+			dir_suffix = "_down" if velocity.y > 0 else "_up"
+	else:
+		# Use last direction to keep facing direction when idle
+		dir_suffix = "_right" if last_direction > 0 else "_left"
 	
+	var state_name = "idle"
 	match current_state:
-		State.IDLE:
-			anim = "idle"
-		State.WALK:
-			anim = "walk"
-		State.ATTACK:
-			anim = "attack"
-	
+		State.IDLE: state_name = "idle"
+		State.WALK: state_name = "walk"
+		State.ATTACK: state_name = "attack"
+		State.DIE: state_name = "die"
+		
+	var anim = state_name + dir_suffix
 	if is_mounted:
 		anim += "_mounted"
 		
 	# Safety check
 	if animated_sprite.sprite_frames and animated_sprite.sprite_frames.has_animation(anim):
 		animated_sprite.play(anim)
+	elif animated_sprite.sprite_frames and animated_sprite.sprite_frames.has_animation(state_name):
+		# Fallback to non-directional if directional doesn't exist
+		animated_sprite.play(state_name)
+		if dir_suffix == "_left":
+			animated_sprite.flip_h = true
+		elif dir_suffix == "_right":
+			animated_sprite.flip_h = false

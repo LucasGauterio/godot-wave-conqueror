@@ -13,9 +13,14 @@ The first game is a 2D wave defender game where the player controls one knight t
 - **Enemies**: Move vertically (Top-Down) in lanes.
 - **Combat**:
   - **Auto-Attack**: Both Player and Enemies automatically attack targets within their strike zones (Area2D nodes).
+  - **Hitbox Dimensions**:
+    - **Player/Enemies**: Capsule shape, Width: 30px, Height: 60px.
+  - **Hitbox Colors (Debug/Visual)**:
+    - **Actor Body**: Player (Red Capsule), Enemies (Green Capsule).
+    - **Weapon Strike Zone**: Circle shape (Red).
   - **Strike Zones**: Combat is not hex/cell based but uses proximity detection.
   - **Attack Range**:
-    - **Melee**: Affects targets in front of the actor within a strike zone (approx 1 lane width).
+    - **Melee**: Base weapon range + optional reach. Auto-attack triggers when the Weapon Combat Circle touches an enemy capsule.
     - **Ranged**: Planned to affect up to 5 lanes.
   - **Target Priority**: Enemies prioritize the Player or Wall over their own allies. They will switch targets if a higher priority target enters their range.
   - **No-Pushing Physics**: Actors do not physically push each other. If an actor detects an obstacle or ally in front, they stop moving (zero velocity) but remain in their current state.
@@ -56,7 +61,23 @@ The first game is a 2D wave defender game where the player controls one knight t
 ### Enemies
 
 Enemies need movement speed, health, and damage stats.
-Animations: Walk, Attack, Knockback, Die.
+Enemies need movement speed, health, and damage stats.
+**Animations**:
+
+- **Directions**: 4-directional (Up, Down, Left, Right).
+- **States**: Idle, Walk, Attack, Die.
+- **Sprite Standard**: Each frame must be 30px width by 60px height.
+
+**Scaling & Hitboxes**:
+
+- **Base Hitbox**: Capsule (30w x 60h).
+- **Tier Scaling**: The sprite and hitbox size increase by 10% cumulatively for each tier.
+  - **Common**: 100% size.
+  - **Elite**: 110% size.
+  - **Boss**: 120% size.
+  - **Commander Boss**: 130% size.
+  - **Final Boss**: 140% size.
+- **Assets**: Must have transparent backgrounds and match the hitbox size.
 
 **Types**:
 
@@ -68,8 +89,13 @@ Animations: Walk, Attack, Knockback, Die.
 
 ### Player & Horse
 
-**Player Animations**: Walk, Run, Idle, Attack, Knockback, Die.
-**Mounted Animations**: Walk, Run, Idle, Attack, Die.
+**Player Animations**:
+
+- **Directions**: 4-directional (Up, Down, Left, Right).
+- **States**: Idle, Walk, Attack, Die.
+- **Visuals**: Primary weapon (sword/axe/mace/bow/crossbow/wand/staff) and optional off-hand (shield/grimoire).
+- **Sprite Standard**: Each frame must be 30px width by 60px height.
+  **Mounted Animations**: Walk, Run, Idle, Attack, Die (4-directional).
 
 **Mount Mechanics**:
 

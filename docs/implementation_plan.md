@@ -15,6 +15,7 @@ This plan outlines the design and development steps for a 2D wave defender game 
 - **Wave Manager**: A singleton/resource to handle enemy spawning logic, difficulty scaling, and wave rewards.
 - **Item System**: A resource-based system for Weapons, Armor, and Magic items with rarity levels (Common to Legendary).
 - **State Machine**: A robust state machine for both Player and Enemies to handle complex animations (Walk, Attack, Knockback, etc.).
+- **Hitbox & Scaling System**: Implementation of 30x60 capsules and tier-based scaling (+10%).
 
 ---
 
@@ -22,14 +23,12 @@ This plan outlines the design and development steps for a 2D wave defender game 
 
 #### [COMPLETED] [Player](file:///g:/Documents/MBA/games/scenes/player/player.tscn)
 
-- Knight scene with `CharacterBody2D`. [COMPLETED]
+- Knight scene with `CharacterBody2D`. [IN PROGRESS: Hitbox refinement]
 - Horizontal & Vertical movement logic. [COMPLETED]
 - State Machine (IDLE, WALK, ATTACK). [COMPLETED]
-- Auto-attack logic based on strike zones (Area2D). [COMPLETED]
+- Auto-attack logic based on strike zones (Area2D). [IN PROGRESS: Circular weapon range]
 
-#### [COMPLETED] [Enemy Base](file:///g:/Documents/MBA/scenes/enemies/enemy_base.tscn)
-
-- Base class for all enemy types. [COMPLETED]
+- Base class for all enemy types. [IN PROGRESS: Scaling refinement]
 - Vertical movement logic and lane stopping (No-Pushing). [COMPLETED]
 - Stats: Health, Damage, Speed. [COMPLETED]
 - Animations: Walk, Attack, Idle, Die. [COMPLETED]
