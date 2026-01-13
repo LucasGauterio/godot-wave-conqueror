@@ -1,0 +1,51 @@
+# Task: Game Development Planning
+
+- [x] Analyze project documentation <!-- id: 0 -->
+  - [x] Read `README.md` <!-- id: 1 -->
+  - [x] Explore `docs` directory <!-- id: 2 -->
+- [x] Develop game development plan <!-- id: 3 -->
+  - [x] Create questions and assumptions <!-- id: 5 -->
+  - [x] Create step-by-step development plan (in task.md and implementation_plan.md) <!-- id: 4 -->
+- [ ] Implement core game loop <!-- id: 10 -->
+  - [x] Project Setup <!-- id: 11 -->
+    - [x] Initialize Godot project <!-- id: 12 -->
+    - [x] Setup folder structure <!-- id: 13 -->
+  - [ ] UI & User Experience <!-- id: 60 -->
+    - [x] Main Menu implementation <!-- id: 61 -->
+    - [x] Universal Navigation (Pause/Back to Menu) <!-- id: 64 -->
+    - [ ] Options/Settings (Adaptive UI) <!-- id: 62 -->
+    - [x] HUD (Health, Mana, Gold) <!-- id: 63 -->
+  - [ ] Cross-Platform Support <!-- id: 40 -->
+    - [ ] Input Mapping (Controller/Keyboard/Touch) <!-- id: 41 -->
+    - [ ] Adaptive UI (Mobile/Desktop layouts) <!-- id: 42 -->
+    - [ ] Touch Joypad implementation <!-- id: 43 -->
+    - [ ] Testing & QA <!-- id: 50 -->
+      - [x] Create Test Runner <!-- id: 51 -->
+      - [x] Unit Test: Player Movement <!-- id: 52 -->
+      - [x] Unit Test: Enemy Logic <!-- id: 53 -->
+      - [ ] Unit Test: Loot Tables <!-- id: 54 -->
+  - [ ] Player Movement & State Machine <!-- id: 14 -->
+    - [x] Knight base scene and horizontal movement <!-- id: 15 -->
+    - [x] State machine (Idle, Walk, Attack, etc.) <!-- id: 16 -->
+  - [ ] Combat & Item System <!-- id: 17 -->
+    - [x] Item Resource system (Rarity, Stats) <!-- id: 18 -->
+    - [ ] Weapon base class and types <!-- id: 19 -->
+    - [x] Adjacent cell attack logic <!-- id: 20 -->
+    - [ ] Loot table logic <!-- id: 21 -->
+  - [ ] Enemy System <!-- id: 22 -->
+    - [x] Enemy base scene and vertical movement <!-- id: 23 -->
+    - [ ] Enemy types (Basic, Elite, Boss) <!-- id: 24 -->
+    - [ ] Enemy damage/health logic <!-- id: 25 -->
+  - [ ] Shop & Inventory <!-- id: 26 -->
+    - [ ] Shop UI and Buy/Sell logic <!-- id: 27 -->
+    - [ ] Chest/Storage system <!-- id: 28 -->
+  - [ ] Defense & Base Building <!-- id: 29 -->
+    - [ ] Wall scene with repair/upgrade <!-- id: 30 -->
+    - [ ] Static defenses (Archers, Ballistae, Traps) <!-- id: 31 -->
+  - [ ] Wave & Game Management <!-- id: 32 -->
+    - [ ] Wave spawning and difficulty scaling <!-- id: 33 -->
+    - [ ] Level-up system (Knight & Horse) <!-- id: 34 -->
+    - [ ] Territory expansion logic <!-- id: 35 -->
+- [x] Create artifacts <!-- id: 6 -->
+  - [x] Create `implementation_plan.md` <!-- id: 7 -->
+- [x] Finalize and notify user <!-- id: 9 -->
