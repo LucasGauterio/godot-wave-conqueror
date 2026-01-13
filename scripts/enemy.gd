@@ -163,16 +163,15 @@ func _draw():
 		var angle_span = PI / 2.0 # 90 degrees
 		var current_angle = last_face_direction.angle() + (attack_anim_timer - 0.5) * angle_span
 		
-		# Draw 1/4 circle "Pizza Slice" After-image (Outline Only)
+		# Draw 1/4 circle "Pizza Slice" After-image (Visual FX)
 		if attack_anim_timer > 0:
 			var trail_points = PackedVector2Array()
-			var start_a = current_angle - angle_span * 0.5
 			trail_points.append(r_hand)
+			var start_a = current_angle - angle_span * 0.5
 			for j in range(9):
 				var a = start_a + (angle_span * 0.5) * (j / 8.0)
 				trail_points.append(r_hand + Vector2.from_angle(a) * (reach + 5))
-			trail_points.append(r_hand)
-			draw_polyline(trail_points, Color(0.4, 0.2, 0.1, 0.4 * attack_anim_timer), 1.5, true)
+			draw_colored_polygon(trail_points, Color(0.4, 0.2, 0.1, 0.2 * attack_anim_timer))
 		
 		# Current Club
 		var club_dir = Vector2.from_angle(current_angle)
