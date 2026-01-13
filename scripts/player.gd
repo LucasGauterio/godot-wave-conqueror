@@ -110,7 +110,9 @@ func _draw():
 	# 1. Draw Horse if mounted (Base)
 	if is_mounted:
 		var horse_color = Color(0.4, 0.2, 0.1) # Dark Brown
-		draw_ellipse(Rect2(-20, 0, 40, 25), horse_color)
+		# Draw a simple ellipse using a transformed circle
+		var old_transform = get_canvas_transform()
+		draw_circle(Vector2(0, 10), 20, horse_color) # Simplified for now to avoid transform complexity
 
 	# 2. Draw Cape (Behind Body)
 	if face_direction.y >= 0: # Facing Down or Side

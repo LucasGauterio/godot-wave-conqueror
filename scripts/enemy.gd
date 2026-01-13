@@ -287,9 +287,4 @@ func die():
 	velocity = Vector2.ZERO
 	collision_shape.set_deferred("disabled", true)
 	died.emit(self)
-	
-	if animated_sprite.sprite_frames.has_animation("die"):
-		animated_sprite.play("die")
-		await animated_sprite.animation_finished
-	
 	queue_free()
