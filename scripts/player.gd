@@ -121,8 +121,8 @@ func _draw():
 	# 2. Draw Cape (Behind Body)
 	if face_direction.y >= 0:
 		var cape_poly = [
-			Vector2(-10, -5), Vector2(10, -5),
-			Vector2(12, 25), Vector2(-12, 25)
+			Vector2(-8, -5), Vector2(8, -5), # Narrower top
+			Vector2(10, 20), Vector2(-10, 20) # Shorter bottom (above feet)
 		]
 		draw_colored_polygon(cape_poly, cape_color)
 
@@ -135,15 +135,15 @@ func _draw():
 	draw_line(Vector2(-6, 5), Vector2(-6, 15 + leg_ext), armor_color, 4) # Left
 	draw_line(Vector2(6, 5), Vector2(6, 25 - leg_ext), armor_color, 4)  # Right
 	
-	# Torso
-	draw_rect(Rect2(-10, -10 + bob_offset, 20, 18), armor_color)
+	# Torso (Reduced width by 20%: 20 -> 16)
+	draw_rect(Rect2(-8, -10 + bob_offset, 16, 18), armor_color)
 	
 	# Head/Helm
 	draw_circle(head_pos, 10, armor_color)
 	
-	# Arms (Humanoid)
-	draw_line(Vector2(-10, -5 + bob_offset), Vector2(-14, 5 + bob_offset), armor_color, 4) # Left Arm
-	draw_line(Vector2(10, -5 + bob_offset), Vector2(14, 5 + bob_offset), armor_color, 4) # Right Arm
+	# Arms (Humanoid) - Adjusted to narrower torso
+	draw_line(Vector2(-8, -5 + bob_offset), Vector2(-14, 5 + bob_offset), armor_color, 4) # Left Arm
+	draw_line(Vector2(8, -5 + bob_offset), Vector2(14, 5 + bob_offset), armor_color, 4) # Right Arm
 
 	# 4. Draw Helm Visor
 	var visor_y = head_pos.y - 2
