@@ -157,8 +157,20 @@ func _draw():
 		var side = 1 if last_face_direction.x > 0 else -1
 		draw_circle(Vector2(4 * side, eye_y), 1.5, Color.BLACK)
 	
-	# 3. Draw Weapon (Club) attached to hand
+	# 3. Draw Weapon (Club) with After-images
 	if current_state == State.ATTACK or attack_anim_timer > 0:
+		# Draw 2 Ghost trails
+		for i in range(2, 0, -1):
+			var ghost_timer = max(0, attack_anim_timer - i * 0.06)
+			if ghost_timer > 0:
+				var g_reach = 12.0 * sin(ghost_timer * PI)
+				var g_r_hand = last_face_direction * (15 + g_reach) + Vector2(0, bob_offset)
+				var g_club_tip = g_r_hand + last_face_direction * 10
+				var g_color = Color(0.4, 0.2, 0.1, 0.2 * (3-i))
+				draw_line(g_r_hand, g_club_tip, g_color, 4)
+				draw_circle(g_club_tip, 6, g_color)
+		
+		# Current Club
 		var club_dir = last_face_direction
 		var club_tip = r_hand + club_dir * 10
 		draw_line(r_hand, club_tip, detail_color, 4)

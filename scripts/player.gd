@@ -195,25 +195,61 @@ func _draw():
 	
 	match weapon_type:
 		WeaponType.SWORD:
+			# Draw 3 After-images (Ghost trails)
+			for i in range(3, 0, -1):
+				var ghost_timer = max(0, attack_anim_timer - i * 0.05)
+				if ghost_timer > 0:
+					var g_reach = 30.0 + 30.0 * sin(ghost_timer * PI)
+					var g_angle = (ghost_timer - 0.5) * 1.5
+					var g_dir = weapon_dir.rotated(g_angle)
+					var g_tip = r_hand + g_dir * g_reach
+					draw_line(r_hand, g_tip, Color(0.8, 0.8, 0.9, 0.15 * (4-i)), 3)
+			
+			# Current Blade
 			var angle_offset = (attack_anim_timer - 0.5) * 1.5
 			var slash_dir = weapon_dir.rotated(angle_offset)
 			var weapon_tip = r_hand + slash_dir * (base_reach + extra_reach)
 			draw_line(r_hand, weapon_tip, metal_color, 4)
-			if attack_anim_timer > 0:
-				draw_arc(Vector2.ZERO, 40 + extra_reach, 
-					weapon_dir.angle() - 0.5, weapon_dir.angle() + 0.5, 
-					16, Color(1, 1, 1, 0.3 * weapon_reach_factor), 2.0)
 		WeaponType.AXE:
+			# Draw 2 After-images
+			for i in range(2, 0, -1):
+				var ghost_timer = max(0, attack_anim_timer - i * 0.08)
+				if ghost_timer > 0:
+					var g_reach = 30.0 + 30.0 * sin(ghost_timer * PI)
+					var g_angle = (ghost_timer - 0.5) * 2.0
+					var g_dir = weapon_dir.rotated(g_angle)
+					var g_tip = r_hand + g_dir * g_reach
+					draw_line(r_hand, g_tip, Color(0.4, 0.2, 0.1, 0.2 * (3-i)), 3)
+					draw_rect(Rect2(g_tip.x - 6, g_tip.y - 6, 12, 12), Color(0.5, 0.5, 0.5, 0.2 * (3-i)))
+
+			# Current Axe
 			var angle_offset = (attack_anim_timer - 0.5) * 2.0
 			var slash_dir = weapon_dir.rotated(angle_offset)
 			var weapon_tip = r_hand + slash_dir * (base_reach + extra_reach)
 			draw_line(r_hand, weapon_tip, wood_color, 4)
 			draw_rect(Rect2(weapon_tip.x - 8, weapon_tip.y - 8, 16, 16), metal_color)
 		WeaponType.BOW:
+			# Draw Ghost Arrow Trail
+			for i in range(2, 0, -1):
+				var ghost_timer = max(0, attack_anim_timer - i * 0.05)
+				if ghost_timer > 0:
+					var g_reach = 15 + 40 * sin(ghost_timer * PI)
+					draw_line(r_hand, r_hand + weapon_dir * g_reach, Color(1, 1, 1, 0.1 * (3-i)), 2)
+			
 			draw_arc(r_hand + weapon_dir * 5, 12, weapon_dir.angle() - 1, weapon_dir.angle() + 1, 12, wood_color, 3.0)
 			if attack_anim_timer > 0:
 				draw_line(r_hand, r_hand + weapon_dir * (15 + 40 * weapon_reach_factor), Color.WHITE, 2)
 		_: # STAFF/MACE
+			# Draw 2 Ghost trails (Thrust)
+			for i in range(2, 0, -1):
+				var ghost_timer = max(0, attack_anim_timer - i * 0.06)
+				if ghost_timer > 0:
+					var g_reach = 30.0 + 30.0 * sin(ghost_timer * PI)
+					var g_tip = r_hand + weapon_dir * g_reach
+					var g_color = Color(0.2, 0.8, 1.0, 0.2 * (3-i))
+					draw_line(r_hand, g_tip, Color(0.4, 0.2, 0.1, 0.2 * (3-i)), 3)
+					draw_circle(g_tip, 5, g_color)
+					
 			var weapon_tip = r_hand + weapon_dir * (base_reach + extra_reach)
 			draw_line(r_hand, weapon_tip, wood_color, 4)
 			draw_circle(weapon_tip, 6, Color(0.2, 0.8, 1.0, 0.8))
