@@ -12,7 +12,7 @@ The first game is a 2D wave defender game where the player controls one knight t
 - **Player**: Moves freely in 4 directions (Up/Down/Left/Right) within the current zone. Can't leave the current zone while battle is happening.
 - **Enemies**: Move vertically (Top-Down) in lanes.
 - **Combat**:
-  - Player can attack Front, Left, and Right.
+  - Player can attack 4 directions (Left/Right/Up/Down).
   - If the player has an enemy in an adjacent cell, the player attacks/knocks back the enemy, and the enemy takes damage.
   - If the enemy advances to the player cell, the player takes damage.
   - The enemies only stop if they are knocked back or die, stopping their column from advancing.

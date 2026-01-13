@@ -60,22 +60,38 @@ func _physics_process(delta):
 	
 	# Update Attack Area direction
 	if last_direction != 0:
-		attack_area.scale.x = 1 if last_direction > 0 else -1
+		# If moving purely vertical, rotate collision shape/area?
+		# Simpler: just position the area based on the last non-zero velocity vector
+		pass # Logic moved to update_attack_direction
+	
+	update_attack_direction()
+
+func update_attack_direction():
+	# If we have movement, update attack area position/rotation
+	# Assuming valid last_velocity or input
+	if velocity != Vector2.ZERO:
+		attack_area.rotation = velocity.angle()
+		# Or if we want grid based:
+		# if abs(velocity.x) > abs(velocity.y): horizontal...
 
 func handle_input():
-	var direction = Input.get_axis("move_left", "move_right")
+	var input_vector = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	
 	if Input.is_action_just_pressed("attack"):
 		enter_state(State.ATTACK)
 		perform_attack()
 		return
 
-	if direction != 0:
-		velocity.x = direction * get_actual_speed()
-		last_direction = direction
+	if input_vector != Vector2.ZERO:
+		velocity = input_vector * get_actual_speed()
+		
+		# Only update facing direction based on horizontal input
+		if input_vector.x != 0:
+			last_direction = sign(input_vector.x)
+			
 		enter_state(State.WALK)
 	else:
-		velocity.x = move_toward(velocity.x, 0, speed)
+		velocity = velocity.move_toward(Vector2.ZERO, speed)
 		enter_state(State.IDLE)
 
 func perform_attack():
