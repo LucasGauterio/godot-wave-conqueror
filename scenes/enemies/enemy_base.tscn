@@ -23,7 +23,7 @@ script = ExtResource("1_enemy")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CapsuleShape2D_1")
-debug_color = Color(0, 0.7, 0, 0.42)
+debug_color = Color(0, 0.6, 0.7, 0)
 
 [node name="RayCast2D" type="RayCast2D" parent="."]
 target_position = Vector2(0, 35)
