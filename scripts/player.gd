@@ -25,6 +25,7 @@ var gold: int = 0
 
 var base_damage: int = 2
 var knockback: float = 200.0
+var attack_range_lanes: float = 1.0 # 1 lane = ~64px usually, but scaling the area
 
 func _ready():
 	current_health = max_health
@@ -68,11 +69,14 @@ func _physics_process(delta):
 
 func update_attack_direction():
 	# If we have movement, update attack area position/rotation
-	# Assuming valid last_velocity or input
 	if velocity != Vector2.ZERO:
 		attack_area.rotation = velocity.angle()
-		# Or if we want grid based:
-		# if abs(velocity.x) > abs(velocity.y): horizontal...
+	
+	# Apply Range Scaling along the local X axis (Forward)
+	# Assuming base size covers ~0.5 lane, so range 1 = scale 1?
+	# Let's assume range_lanes acts as a multiplier.
+	# Reset scale Y to 1.0 just in case.
+	attack_area.scale = Vector2(attack_range_lanes, 1.0)
 
 func handle_input():
 	var input_vector = Input.get_vector("move_left", "move_right", "move_up", "move_down")

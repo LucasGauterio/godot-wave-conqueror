@@ -5,6 +5,7 @@ func run():
 	test_movement_speed()
 	test_state_machine()
 	test_health_logic()
+	test_attack_range()
 
 func test_initial_state():
 	var player = load("res://scenes/player/knight.tscn").instantiate()
@@ -62,5 +63,19 @@ func test_health_logic():
 	assert_eq(player.current_health, 80, "Health should decrease again")
 	assert_gt(signal_results.size(), 0, "Health changed signal should be emitted")
 	assert_eq(signal_results[0][0], 80, "Signal should carry correct current health")
+	
+	player.free()
+
+func test_attack_range():
+	var player = load("res://scenes/player/knight.tscn").instantiate()
+	runner.root.add_child(player)
+	
+	player.attack_range_lanes = 2.0
+	player.update_attack_direction()
+	assert_eq(player.attack_area.scale.x, 2.0, "Attack area scale X should match range lanes")
+	
+	player.attack_range_lanes = 5.0
+	player.update_attack_direction()
+	assert_eq(player.attack_area.scale.x, 5.0, "Attack area scale X should match ranged lanes")
 	
 	player.free()

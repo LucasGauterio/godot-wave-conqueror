@@ -13,6 +13,9 @@ The first game is a 2D wave defender game where the player controls one knight t
 - **Enemies**: Move vertically (Top-Down) in lanes.
 - **Combat**:
   - Player can attack 4 directions (Left/Right/Up/Down).
+  - **Attack Range**:
+    - **Melee**: Affects 1-2 lanes (based on weapon reach).
+    - **Ranged**: Affects up to 5 lanes.
   - If the player has an enemy in an adjacent cell, the player attacks/knocks back the enemy, and the enemy takes damage.
   - If the enemy advances to the player cell, the player takes damage.
   - The enemies only stop if they are knocked back or die, stopping their column from advancing.
