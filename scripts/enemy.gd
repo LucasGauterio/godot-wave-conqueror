@@ -144,7 +144,6 @@ func move_forward(delta):
 	velocity.y = speed
 	velocity.x = 0
 
-@onready var attack_detection = $AttackDetection
 @onready var ray_cast = $RayCast2D
 
 var target_to_attack: Node2D = null
@@ -152,66 +151,30 @@ var target_to_attack: Node2D = null
 func check_collisions():
 	# If we have a target, check if we should switch priority
 	if is_instance_valid(target_to_attack):
-		# If we are attacking the wall (or anything else), but the Knight is close, SWITCH!
+		# If current target is NOT the Knight, but Knight is detected by raycast, SWITCH!
 		if target_to_attack.name != "Knight":
-			var overlapping = attack_detection.get_overlapping_bodies()
-			for body in overlapping:
-				if body.name == "Knight":
-					# print("[Enemy %s] SWITCHING TARGET: Wall -> Knight at %s" % [name, position])
-					target_to_attack = body
+			if ray_cast.is_colliding():
+				var collider = ray_cast.get_collider()
+				if is_instance_valid(collider) and collider.name == "Knight":
+					target_to_attack = collider
 					current_state = State.ATTACK
 					return
-
-		# Verify current target is still valid/in range (handled in perform_attack mostly, but good to check state)
-		current_state = State.ATTACK
 		return
 
 	var potential_blocked = false
-	var overlapping = attack_detection.get_overlapping_bodies()
 	
-	# Pass 1: Look for Player or Wall (High Priority)
-	for body in overlapping:
-		if body == self: continue
-		
-		# Prioritize Knight
-		if body.name == "Knight":
-			# print("[Enemy %s] TARGET FOUND: Knight at %s" % [name, position])
-			target_to_attack = body
-			current_state = State.ATTACK
-			return
-			
-		# Then Wall
-		if body.is_in_group("wall") or body.get_collision_layer_value(3):
-			# Don't return yet, keep looking for Knight in this same list? 
-			# Actually, if we found a wall, we can set it, but if Knight is also there, Knight wins.
-			# Let's just set target and keep iterating? No, simple is best. 
-			# We already prioritized Knight above. If we are here, body is NOT Knight.
-			# But is Knight further down the list?
-			# Let's verify if Knight is in the list before settling for Wall.
-			var knight_in_list = false
-			for b in overlapping:
-				if b.name == "Knight": 
-					knight_in_list = true
-					target_to_attack = b
-					break
-			
-			if knight_in_list:
-				# print("[Enemy %s] TARGET FOUND: Knight (overrode Wall) at %s" % [name, position])
-				current_state = State.ATTACK
-				return
-			else:
-				# print("[Enemy %s] TARGET FOUND: Wall at %s" % [name, position])
-				target_to_attack = body
-				current_state = State.ATTACK
-				return
-		
-		if body.is_in_group("enemies"):
-			potential_blocked = true
-
-	# Pass 2: Check Raycast
+	# Primary Detection: RayCast (detects what's immediately in front)
 	if ray_cast.is_colliding():
 		var collider = ray_cast.get_collider()
 		if is_instance_valid(collider) and collider != self:
+			if collider.name == "Knight":
+				target_to_attack = collider
+				current_state = State.ATTACK
+				return
+			if collider.is_in_group("wall") or collider.get_collision_layer_value(3):
+				target_to_attack = collider
+				current_state = State.ATTACK
+				return
 			if collider.is_in_group("enemies"):
 				potential_blocked = true
 
@@ -231,19 +194,17 @@ func perform_attack():
 		current_state = State.WALK
 		return
 
-	# Check range
+	# Check range: either raycast or near proximity
 	var in_range = false
-	for body in attack_detection.get_overlapping_bodies():
-		if body == target_to_attack:
-			in_range = true
-			break
-	
-	if not in_range:
-		if ray_cast.is_colliding() and ray_cast.get_collider() == target_to_attack:
+	if ray_cast.is_colliding() and ray_cast.get_collider() == target_to_attack:
+		in_range = true
+	else:
+		# Small distance check as fallback (30px width + safety)
+		if global_position.distance_to(target_to_attack.global_position) < 50:
 			in_range = true
 			
 	if not in_range:
-		print("[Enemy %s] Target %s out of range, stopping attack." % [name, target_to_attack.name])
+		# print("[Enemy %s] Target %s out of range, stopping attack." % [name, target_to_attack.name])
 		target_to_attack = null
 		current_state = State.WALK
 		return

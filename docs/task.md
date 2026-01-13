@@ -16,7 +16,7 @@
     - [ ] Options/Settings (Adaptive UI) <!-- id: 62 -->
     - [x] HUD (Health, Mana, Gold) <!-- id: 63 -->
   - [ ] Cross-Platform Support <!-- id: 40 -->
-    - [ ] Input Mapping (Controller/Keyboard/Touch) <!-- id: 41 -->
+    - [x] Input Mapping (Controller/Keyboard/Touch) <!-- id: 41 -->
     - [ ] Adaptive UI (Mobile/Desktop layouts) <!-- id: 42 -->
     - [ ] Touch Joypad implementation <!-- id: 43 -->
     - [ ] Testing & QA <!-- id: 50 -->
@@ -27,14 +27,14 @@
   - [ ] Player Movement & State Machine <!-- id: 14 -->
     - [x] Knight base scene and horizontal movement <!-- id: 15 -->
     - [x] State machine (Idle, Walk, Attack, etc.) <!-- id: 16 -->
-  - [ ] Combat & Item System <!-- id: 17 -->
+  - [x] Combat & Item System <!-- id: 17 -->
     - [x] Item Resource system (Rarity, Stats) <!-- id: 18 -->
     - [ ] Weapon base class and types <!-- id: 19 -->
-    - [x] Adjacent cell attack logic <!-- id: 20 -->
+    - [x] Auto-Attack logic (Contact-based) <!-- id: 20 -->
     - [ ] Loot table logic <!-- id: 21 -->
-  - [ ] Enemy System <!-- id: 22 -->
+  - [x] Enemy System <!-- id: 22 -->
     - [x] Enemy base scene and vertical movement <!-- id: 23 -->
-    - [ ] Enemy types (Basic, Elite, Boss) <!-- id: 24 -->
+    - [x] Programmatic Graphics <!-- id: 24 -->
     - [x] Enemy damage/health logic <!-- id: 25 -->
   - [ ] Shop & Inventory <!-- id: 26 -->
     - [ ] Shop UI and Buy/Sell logic <!-- id: 27 -->
