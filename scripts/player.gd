@@ -131,13 +131,22 @@ func enter_state(new_state: State):
 			get_tree().create_timer(0.3).timeout.connect(func(): current_state = State.IDLE)
 
 func update_animations():
+	var anim = "idle"
+	
 	if last_direction != 0:
 		animated_sprite.flip_h = last_direction < 0
 	
 	match current_state:
 		State.IDLE:
-			animated_sprite.play("idle" if not is_mounted else "idle_mounted")
+			anim = "idle"
 		State.WALK:
-			animated_sprite.play("walk" if not is_mounted else "walk_mounted")
+			anim = "walk"
 		State.ATTACK:
-			animated_sprite.play("attack" if not is_mounted else "attack_mounted")
+			anim = "attack"
+	
+	if is_mounted:
+		anim += "_mounted"
+		
+	# Safety check
+	if animated_sprite.sprite_frames and animated_sprite.sprite_frames.has_animation(anim):
+		animated_sprite.play(anim)
