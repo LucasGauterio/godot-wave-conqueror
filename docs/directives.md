@@ -18,6 +18,8 @@ This document summarizes all user requests, constraints, and established pattern
   - Maintain `questions_and_assumptions.md` for clarity on undefined behaviors.
 - **Continuous Improvement**:
   - **Requirement**: After resolving complex issues, summarize the root cause and update these Directives with new standards to prevent recurrence.
+- **Git Workflow**:
+  - **Requirement**: A commit **MUST** be made and pushed `origin main` after every implemented, changed, or tested feature.
 
 ## 2. Gameplay Mechanics & Rules
 
@@ -57,6 +59,7 @@ Before marking a task as "Done":
 3. [ ] Does it adhere to the "Lane-based" and "Chest-only loot" rules?
 4. [ ] Is the documentation updated?
 5. [ ] Have you updated directives with any new technical learnings?
+6. [ ] Have you committed and pushed the changes?
 
 ## 5. Technical Standards (Anti-Patterns to Avoid)
 
