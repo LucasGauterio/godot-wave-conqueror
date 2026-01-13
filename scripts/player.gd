@@ -11,7 +11,17 @@ var is_mounted: bool = false
 var last_direction: float = 1.0
 @export var show_debug_hitbox: bool = true
 
-@onready var animated_sprite = $AnimatedSprite2D
+enum WeaponType { SWORD, AXE, MACE, BOW, WAND, STAFF }
+enum OffHandType { NONE, SHIELD, GRIMOIRE }
+
+@export var weapon_type: WeaponType = WeaponType.SWORD
+@export var off_hand: OffHandType = OffHandType.NONE
+
+# Drawing Variables
+var walk_timer: float = 0.0
+var attack_anim_timer: float = 0.0
+var face_direction: Vector2 = Vector2.DOWN
+
 @onready var collision_shape = $CollisionShape2D
 @onready var attack_area = $AttackArea
 
@@ -72,28 +82,96 @@ func _physics_process(delta):
 		velocity = Vector2.ZERO
 		
 	move_and_slide()
-	update_animations()
-	update_attack_direction()
-	if show_debug_hitbox:
-		queue_redraw()
+	
+	# Drawing Logic Update
+	if velocity.length() > 0.1:
+		walk_timer += delta * 12
+		face_direction = velocity.normalized()
+	else:
+		walk_timer = 0.0
+		
+	if current_state == State.ATTACK:
+		attack_anim_timer = min(1.0, attack_anim_timer + delta * 5)
+	else:
+		attack_anim_timer = 0.0
+		
+	queue_redraw()
 
 func _draw():
-	if not show_debug_hitbox:
-		return
-		
-	# Draw body hitbox (Red Capsule)
-	# Capsule is 30x60 => radius 15, height 60
-	var color = Color(1, 0, 0, 0.5) 
-	draw_circle(Vector2(0, -15), 15, color)
-	draw_circle(Vector2(0, 15), 15, color)
-	draw_rect(Rect2(-15, -15, 30, 30), color)
+	var armor_color = Color(0.7, 0.7, 0.7) # Silver
+	var cape_color = Color(0.8, 0, 0) # Red
+	var eye_color = Color(0.1, 0.1, 0.1) # Dark Visor
+	var wood_color = Color(0.4, 0.2, 0.1) # Brown
+	var metal_color = Color(0.5, 0.5, 0.5) # Grey
 	
-	# Draw weapon range (Red Circle)
-	if attack_area and attack_area.has_node("CollisionShape2D"):
-		var shape = attack_area.get_node("CollisionShape2D").shape
-		if shape is CircleShape2D:
-			var weapon_color = Color(1, 0.2, 0.2, 0.3)
-			draw_circle(attack_area.position, shape.radius, weapon_color)
+	var bob_offset = sin(walk_timer) * 2.0 if walk_timer > 0 else 0.0
+	var body_pos = Vector2.ZERO # Stay centered on hitbox
+	
+	# 1. Draw Horse if mounted (Base)
+	if is_mounted:
+		var horse_color = Color(0.4, 0.2, 0.1) # Dark Brown
+		draw_ellipse(Rect2(-20, 0, 40, 25), horse_color)
+
+	# 2. Draw Cape (Behind Body)
+	if face_direction.y >= 0: # Facing Down or Side
+		var cape_poly = [
+			Vector2(-12, -15), Vector2(12, -15),
+			Vector2(15, 20), Vector2(-15, 20)
+		]
+		draw_colored_polygon(cape_poly, cape_color)
+
+	# 3. Draw Body (Capsule 30x60 centered)
+	draw_circle(Vector2(0, -15 + bob_offset), 15, armor_color) # Bob the head
+	draw_circle(Vector2(0, 15), 15, armor_color) # Feet stay grounded
+	draw_rect(Rect2(-15, -15, 30, 30), armor_color)
+
+	# 4. Draw Helm Visor (on the bobbing head)
+	var visor_y = -18 + bob_offset
+	if face_direction.y > 0.5: # Down
+		draw_rect(Rect2(-8, visor_y, 16, 3), eye_color)
+	elif face_direction.y < -0.5: # Up
+		pass 
+	else: # Side
+		var side = 1 if face_direction.x > 0 else -1
+		draw_rect(Rect2(5 * side if side > 0 else -15, visor_y, 10, 3), eye_color)
+
+	# 5. Draw Off-hand
+	if off_hand != OffHandType.NONE:
+		var off_pos = Vector2(-16 if face_direction.x >= 0 else 16, 0)
+		if off_hand == OffHandType.SHIELD:
+			draw_rect(Rect2(off_pos.x - 7, off_pos.y - 10, 14, 20), Color(0.2, 0.4, 0.7))
+		else:
+			draw_rect(Rect2(off_pos.x - 5, off_pos.y - 5, 10, 10), Color(0.3, 0.1, 0.5))
+
+	# 6. Draw Weapon
+	var weapon_reach = 15.0 * sin(attack_anim_timer * PI)
+	var weapon_dir = face_direction
+	if weapon_dir.length() < 0.1: 
+		weapon_dir = Vector2.RIGHT if last_direction > 0 else Vector2.LEFT
+	else:
+		weapon_dir = weapon_dir.normalized()
+		
+	var weapon_pos = weapon_dir * (20 + weapon_reach)
+	
+	match weapon_type:
+		WeaponType.SWORD:
+			draw_line(Vector2.ZERO, weapon_pos, metal_color, 4)
+		WeaponType.AXE:
+			draw_line(Vector2.ZERO, weapon_pos, wood_color, 4)
+			draw_rect(Rect2(weapon_pos.x - 6, weapon_pos.y - 6, 12, 12), metal_color)
+		WeaponType.BOW:
+			draw_arc(weapon_dir * 10, 12, weapon_dir.angle() - 1, weapon_dir.angle() + 1, 12, wood_color, 3.0)
+		_:
+			draw_line(Vector2.ZERO, weapon_pos, wood_color, 4)
+			draw_circle(weapon_pos, 4, Color(0.2, 0.8, 1.0))
+
+	# 7. Debug Hitbox
+	if show_debug_hitbox:
+		var outline_color = Color(1, 0, 0, 0.5)
+		draw_arc(Vector2(0, -15), 15, 0, TAU, 16, outline_color, 1.0)
+		draw_arc(Vector2(0, 15), 15, 0, TAU, 16, outline_color, 1.0)
+		draw_line(Vector2(-15, -15), Vector2(-15, 15), outline_color, 1.0)
+		draw_line(Vector2(15, -15), Vector2(15, 15), outline_color, 1.0)
 
 func check_auto_attack():
 	if time_since_last_attack <= 0 and current_state != State.ATTACK:
@@ -171,35 +249,5 @@ func enter_state(new_state: State):
 			)
 
 func update_animations():
-	var dir_suffix = "_down" # Default
-	
-	if velocity.length() > 0.1:
-		if abs(velocity.x) > abs(velocity.y):
-			dir_suffix = "_right" if velocity.x > 0 else "_left"
-		else:
-			dir_suffix = "_down" if velocity.y > 0 else "_up"
-	else:
-		# Use last direction to keep facing direction when idle
-		dir_suffix = "_right" if last_direction > 0 else "_left"
-	
-	var state_name = "idle"
-	match current_state:
-		State.IDLE: state_name = "idle"
-		State.WALK: state_name = "walk"
-		State.ATTACK: state_name = "attack"
-		State.DIE: state_name = "die"
-		
-	var anim = state_name + dir_suffix
-	if is_mounted:
-		anim += "_mounted"
-		
-	# Safety check
-	if animated_sprite.sprite_frames and animated_sprite.sprite_frames.has_animation(anim):
-		animated_sprite.play(anim)
-	elif animated_sprite.sprite_frames and animated_sprite.sprite_frames.has_animation(state_name):
-		# Fallback to non-directional if directional doesn't exist
-		animated_sprite.play(state_name)
-		if dir_suffix == "_left":
-			animated_sprite.flip_h = true
-		elif dir_suffix == "_right":
-			animated_sprite.flip_h = false
+	# We use programmatic drawing now.
+	pass

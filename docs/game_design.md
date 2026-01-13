@@ -13,10 +13,14 @@ The first game is a 2D wave defender game where the player controls one knight t
 - **Enemies**: Move vertically (Top-Down) in lanes.
 - **Combat**:
   - **Auto-Attack**: Both Player and Enemies automatically attack targets within their strike zones (Area2D nodes).
+  - **Visuals (Programmatic)**:
+    - Characters are drawn using Godot's `_draw()` function (CanvasItems).
+    - Style: Low detail, geometric, with distinguishing elements.
   - **Hitbox Dimensions**:
     - **Player/Enemies**: Capsule shape, Width: 30px, Height: 60px.
   - **Hitbox Colors (Debug/Visual)**:
-    - **Actor Body**: Player (Red Capsule), Enemies (Green Capsule).
+    - **Actor Body**: Player (Red Capsule Outline), Enemies (Green Capsule Outline).
+    - **Physical Forms**: Knight (Silver/Grey with Red Cape), Goblins (Green with Brown loincloth).
     - **Weapon Strike Zone**: Circle shape (Red).
   - **Strike Zones**: Combat is not hex/cell based but uses proximity detection.
   - **Attack Range**:
@@ -68,16 +72,16 @@ Enemies need movement speed, health, and damage stats.
 - **States**: Idle, Walk, Attack, Die.
 - **Sprite Standard**: Each frame must be 30px width by 60px height.
 
-**Scaling & Hitboxes**:
+**Scaling & Visuals**:
 
 - **Base Hitbox**: Capsule (30w x 60h).
-- **Tier Scaling**: The sprite and hitbox size increase by 10% cumulatively for each tier.
-  - **Common**: 100% size.
-  - **Elite**: 110% size.
-  - **Boss**: 120% size.
-  - **Commander Boss**: 130% size.
-  - **Final Boss**: 140% size.
-- **Assets**: Must have transparent backgrounds and match the hitbox size.
+- **Appearance**: Drawn programmatically as a Green body (capsule) with a Brown club shape when attacking.
+- **Tier Scaling**: The drawn size increases by 10% cumulatively for each tier.
+  - **Common**: 1.0x size.
+  - **Elite**: 1.1x size.
+  - **Boss**: 1.2x size.
+  - **Commander Boss**: 1.3x size.
+  - **Final Boss**: 1.4x size.
 
 **Types**:
 
@@ -89,13 +93,18 @@ Enemies need movement speed, health, and damage stats.
 
 ### Player & Horse
 
-**Player Animations**:
+**Visuals (Programmatic)**:
 
-- **Directions**: 4-directional (Up, Down, Left, Right).
-- **States**: Idle, Walk, Attack, Die.
-- **Visuals**: Primary weapon (sword/axe/mace/bow/crossbow/wand/staff) and optional off-hand (shield/grimoire).
-- **Sprite Standard**: Each frame must be 30px width by 60px height.
-  **Mounted Animations**: Walk, Run, Idle, Attack, Die (4-directional).
+- **Body**: Silver/Grey armor (30x60 capsule).
+- **Cape**: Red polygon/rectangle attached to the back.
+- **Helm**: Darker grey horizontal line for the visor.
+- **Horse**: Brown large oval base base when mounted.
+- **Weapons**:
+  - **Sword/Axe/Mace**: Metal (Grey) and Wood (Brown) geometric shapes.
+  - **Bow/Staff**: Specific shapes (Curved brown ark / Grey pole with blue orb).
+  - **Off-hand**: Shield (Blue rectangle) or Grimoire (Darker Blue square).
+- **Animations**: Programmatic "bobbing" (sine wave offset) for walking and "thrusting/slashing" (displacement) for attacks.
+- **Proportions**: Each drawn frame adheres to the 30x60 standard.
 
 **Mount Mechanics**:
 

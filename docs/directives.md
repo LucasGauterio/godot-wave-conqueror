@@ -35,9 +35,11 @@ This document summarizes all user requests, constraints, and established pattern
   - **Switching**: If already attacking a lower-priority target (e.g. Wall), they MUST switch to a higher-priority target (e.g. Knight) if it enters range.
   - **Weapon Range**: Weapon reach adds to the combat circle radius.
 - **Visuals**:
-  - **Colors**: Player body/weapon hitboxes must be Red. Enemy body hitboxes must be Green.
-  - **Scaling**: Enemies increase in size by 10% per tier (Common=1.0, Elite=1.1, Boss=1.2, etc.). Sprites must scale with hitboxes.
-  - **Transparency**: Assets must have transparent backgrounds.
+  - **Programmatic Drawing**: Actors MUST be drawn using `_draw()` to ensure consistency, flexibility (weapon switching), and performance. Avoid PNG sprites for core actors.
+  - **Colors**: Player (Silver/Red), Enemies (Green/Brown). Hitbox outlines remain Red (Player) and Green (Enemy).
+  - **Scaling**: Increase `self.scale` by 10% per tier (Common=1.0, Elite=1.1, etc.).
+  - **Transparency**: Handled automatically by CanvasItem drawing.
+  - **Animations**: Use code-driven transformations (e.g., `sin(time)` for walking bobbing, `attack_anim_timer` with `PI` for weapon thrusts/slashes).
 - **Progression**:
   - **Mounts**: Permanent speed/stat upgrade. No dismount mechanic.
   - **Territory**:

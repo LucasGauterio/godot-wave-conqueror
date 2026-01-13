@@ -17,13 +17,18 @@ var lane_index: int = 0 # To track which vertical lane they are in
 
 signal died(enemy)
 
-@onready var animated_sprite = $AnimatedSprite2D
 @onready var collision_shape = $CollisionShape2D
 
 @export var attack_cooldown: float = 1.0
 var time_since_last_attack: float = 0.0
 
 @onready var health_bar = $HealthBar
+
+# Programmatic Drawing Variables
+var walk_timer: float = 0.0
+var attack_anim_timer: float = 0.0
+var face_direction: Vector2 = Vector2.DOWN
+var last_face_direction: Vector2 = Vector2.DOWN
 
 func _ready():
 	current_health = max_health
@@ -77,52 +82,63 @@ func _physics_process(delta):
 			pass
 
 	move_and_slide()
-	update_animations()
-	if show_debug_hitbox:
-		queue_redraw()
+	
+	# Drawing Logic
+	if velocity.length() > 0.1:
+		walk_timer += delta * 10
+		face_direction = velocity.normalized()
+		last_face_direction = face_direction
+	else:
+		walk_timer = 0.0
+		
+	if current_state == State.ATTACK:
+		attack_anim_timer = min(1.0, attack_anim_timer + delta * 5)
+	else:
+		attack_anim_timer = 0.0
+		
+	queue_redraw()
 
 func _draw():
-	if not show_debug_hitbox:
-		return
-		
-	# Draw body hitbox (Green Capsule)
-	# Capsule is 30x60 => radius 15, height 60
-	# Godot's draw_rect is easier or we can draw the shape
-	var color = Color(0, 1, 0, 0.5) # Green with alpha
-	var rect = Rect2(-15, -15, 30, 60) # Approximating capsule for visibility
-	# Draw circle top/bottom and rect middle
-	draw_circle(Vector2(0, -15), 15, color)
-	draw_circle(Vector2(0, 15), 15, color)
-	draw_rect(Rect2(-15, -15, 30, 30), color)
+	# Scaling is already applied to the node, so we draw at 30x60 base dimensions
+	var body_color = Color(0.2, 0.6, 0.2) # Goblin Green
+	var detail_color = Color(0.4, 0.2, 0.1) # Brown
+	
+	var bob_offset = sin(walk_timer) * 2.0 if walk_timer > 0 else 0.0
+	
+	# 1. Draw Body (Capsule 30x60 centered)
+	draw_circle(Vector2(0, -15 + bob_offset), 15, body_color) # Bob the head
+	draw_circle(Vector2(0, 15), 15, body_color) # Feet stay grounded
+	draw_rect(Rect2(-15, -15, 30, 30), body_color)
+	
+	# 2. Draw Eyes (Black dots) based on direction
+	var eye_pos = Vector2(0, -20 + bob_offset)
+	if last_face_direction.y > 0.5: # Down
+		draw_circle(eye_pos + Vector2(-5, 0), 2, Color.BLACK)
+		draw_circle(eye_pos + Vector2(5, 0), 2, Color.BLACK)
+	elif last_face_direction.y < -0.5: # Up
+		pass
+	else: # Sides
+		var side = 1 if last_face_direction.x > 0 else -1
+		draw_circle(eye_pos + Vector2(5 * side, 0), 2, Color.BLACK)
+	
+	# 3. Draw Weapon (Club) during attack
+	if current_state == State.ATTACK or attack_anim_timer > 0:
+		var weapon_reach = 15.0 * sin(attack_anim_timer * PI)
+		var weapon_pos = last_face_direction * (20 + weapon_reach)
+		draw_line(Vector2.ZERO, weapon_pos, detail_color, 4)
+		draw_circle(weapon_pos, 6, detail_color)
+
+	# 4. Optional: Draw Debug Hitbox Outline
+	if show_debug_hitbox:
+		var outline_color = Color(0, 1, 0, 0.5)
+		draw_arc(Vector2(0, -15), 15, 0, TAU, 16, outline_color, 1.0)
+		draw_arc(Vector2(0, 15), 15, 0, TAU, 16, outline_color, 1.0)
+		draw_line(Vector2(-15, -15), Vector2(-15, 15), outline_color, 1.0)
+		draw_line(Vector2(15, -15), Vector2(15, 15), outline_color, 1.0)
 
 func update_animations():
-	var dir_suffix = "_down" # Default
-	
-	if velocity.length() > 0.1:
-		if abs(velocity.x) > abs(velocity.y):
-			dir_suffix = "_right" if velocity.x > 0 else "_left"
-		else:
-			dir_suffix = "_down" if velocity.y > 0 else "_up"
-	
-	var state_name = "idle"
-	match current_state:
-		State.WALK: 
-			state_name = "idle" if is_blocked else "walk"
-		State.ATTACK: state_name = "attack"
-		State.DIE: state_name = "die"
-	
-	var anim = state_name + dir_suffix
-	if animated_sprite.sprite_frames.has_animation(anim):
-		if animated_sprite.animation != anim:
-			animated_sprite.play(anim)
-	elif animated_sprite.sprite_frames.has_animation(state_name):
-		# Fallback to non-directional
-		if animated_sprite.animation != state_name:
-			animated_sprite.play(state_name)
-		if dir_suffix == "_left":
-			animated_sprite.flip_h = true
-		elif dir_suffix == "_right":
-			animated_sprite.flip_h = false
+	# Using programmatic drawing
+	pass
 
 func move_forward(delta):
 	velocity.y = speed
