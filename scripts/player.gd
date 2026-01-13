@@ -199,13 +199,15 @@ func _draw():
 			var angle_span = PI / 2.0 # 90 degrees (1/4 circle)
 			var current_angle = weapon_dir.angle() + (attack_anim_timer - 0.5) * angle_span
 			
-			# Draw 1/4 circle After-image arc
+			# Draw 1/4 circle "Pizza Slice" After-image
 			if attack_anim_timer > 0:
-				var trail_color = Color(1, 1, 1, 0.4 * weapon_reach_factor)
-				# Draw the "phantom" sweep area (using multiple arcs for thickness/fade)
-				for i in range(3):
-					var fade = 0.3 / (i + 1)
-					draw_arc(r_hand, reach - i*2, current_angle - angle_span * 0.5, current_angle, 16, Color(1, 1, 1, fade * weapon_reach_factor), 3.0)
+				var trail_points = PackedVector2Array()
+				trail_points.append(r_hand)
+				var start_a = current_angle - angle_span * 0.5
+				for j in range(9): # 8 segments for the arc
+					var a = start_a + (angle_span * 0.5) * (j / 8.0)
+					trail_points.append(r_hand + Vector2.from_angle(a) * reach)
+				draw_colored_polygon(trail_points, Color(1, 1, 1, 0.2 * weapon_reach_factor))
 			
 			# Current Blade
 			var slash_dir = Vector2.from_angle(current_angle)
@@ -217,10 +219,15 @@ func _draw():
 			var angle_span = PI / 2.0 # 90 degrees
 			var current_angle = weapon_dir.angle() + (attack_anim_timer - 0.5) * angle_span
 			
-			# Draw 1/4 circle After-image arc
+			# Draw 1/4 circle "Pizza Slice" After-image
 			if attack_anim_timer > 0:
-				var trail_color = Color(0.6, 0.4, 0.2, 0.3 * weapon_reach_factor)
-				draw_arc(r_hand, reach, current_angle - angle_span * 0.5, current_angle, 16, trail_color, 6.0)
+				var trail_points = PackedVector2Array()
+				trail_points.append(r_hand)
+				var start_a = current_angle - angle_span * 0.5
+				for j in range(9):
+					var a = start_a + (angle_span * 0.5) * (j / 8.0)
+					trail_points.append(r_hand + Vector2.from_angle(a) * reach)
+				draw_colored_polygon(trail_points, Color(0.6, 0.4, 0.2, 0.25 * weapon_reach_factor))
 
 			# Current Axe
 			var slash_dir = Vector2.from_angle(current_angle)
