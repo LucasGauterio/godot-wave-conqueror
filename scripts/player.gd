@@ -75,12 +75,13 @@ func _physics_process(delta):
 	update_attack_direction()
 
 func check_auto_attack():
-	if time_since_last_attack <= 0:
+	if time_since_last_attack <= 0 and current_state != State.ATTACK:
 		var bodies = attack_area.get_overlapping_bodies()
-		# if bodies.size() > 0:
-		# 	print("Knight seeing ", bodies.size(), " bodies")
+		if bodies.size() > 0:
+			print("[DEBUG] Knight sees ", bodies.size(), " bodies in attack area")
 		for body in bodies:
 			if body != self and (body.is_in_group("enemies") or body.has_method("take_damage")):
+				print("[DEBUG] Knight attacking: ", body.name)
 				enter_state(State.ATTACK)
 				perform_attack()
 				break
@@ -102,8 +103,7 @@ func handle_input():
 	
 	if input_vector != Vector2.ZERO:
 		var target_speed = get_actual_speed()
-		# If we are attacking or blocked, don't move
-		if current_state == State.ATTACK or target_speed == 0:
+		if current_state == State.ATTACK:
 			velocity = Vector2.ZERO
 		else:
 			velocity = input_vector * target_speed
@@ -124,23 +124,15 @@ func perform_attack():
 			body.take_damage(base_damage, knockback)
 			hit = true
 	
-	if hit:
-		time_since_last_attack = attack_cooldown
+	# Always start cooldown to prevent infinite animation loop
+	time_since_last_attack = attack_cooldown
 
 func get_actual_speed() -> float:
 	var base = speed
-	# Check for 'run' action, if none, use default
 	if Input.is_action_pressed("run"):
 		base *= run_speed_multiplier
 	if is_mounted:
 		base *= mounted_speed_multiplier
-	
-	# If enemies are very close, slow down or stop to prevent pushing
-	var bodies = attack_area.get_overlapping_bodies()
-	for body in bodies:
-		if body.is_in_group("enemies"):
-			return 0.0 # Stop moving into enemies
-			
 	return base
 
 func enter_state(new_state: State):

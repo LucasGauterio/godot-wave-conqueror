@@ -88,46 +88,44 @@ func move_forward(delta):
 var target_to_attack: Node2D = null
 
 func check_collisions():
-	# If we have a target, check if it's still overlapping or valid
+	# If we have a target, check if it's still alive and valid
 	if is_instance_valid(target_to_attack):
-		if target_to_attack in attack_detection.get_overlapping_bodies():
-			current_state = State.ATTACK
-			return
-		else:
-			target_to_attack = null
-			current_state = State.WALK
+		# If the target is the player or wall, we stay in attack mode
+		# We'll rely on perform_attack's range check to drop it if they get away
+		current_state = State.ATTACK
+		return
 
-	# 1. Check overlapping bodies in the front detection area
+	var potential_blocked = false
 	var overlapping = attack_detection.get_overlapping_bodies()
+	
+	# Pass 1: Look for Player or Wall (High Priority)
 	for body in overlapping:
 		if body == self: continue
-		
-		# Prioritize attacking the Player or Wall
 		if body.name == "Knight" or body.is_in_group("wall") or body.get_collision_layer_value(3):
 			target_to_attack = body
 			current_state = State.ATTACK
 			return
 		
-		# If it's another enemy, just stop (prevents pushing/stacking)
 		if body.is_in_group("enemies"):
-			is_blocked = true
-			return
+			potential_blocked = true
 
-	# 2. Check raycast for precise line-of-sight
+	# Pass 2: Check Raycast for line-of-sight targets
 	if ray_cast.is_colliding():
 		var collider = ray_cast.get_collider()
-		if collider == self: return
-		
-		if collider.name == "Knight" or collider.is_in_group("wall") or collider.get_collision_layer_value(3):
-			target_to_attack = collider
-			current_state = State.ATTACK
-			return
-		
-		if collider.is_in_group("enemies"):
-			is_blocked = true
-			return
+		if is_instance_valid(collider) and collider != self:
+			if collider.name == "Knight" or collider.is_in_group("wall") or collider.get_collision_layer_value(3):
+				target_to_attack = collider
+				current_state = State.ATTACK
+				return
+			if collider.is_in_group("enemies"):
+				potential_blocked = true
 
-	# If nothing detected
+	# If no target found but we are blocked by an ally
+	if potential_blocked:
+		is_blocked = true
+		return
+
+	# If nothing detected, make sure we are walking
 	if current_state == State.ATTACK:
 		current_state = State.WALK
 
@@ -138,12 +136,18 @@ func perform_attack():
 		current_state = State.WALK
 		return
 
-	# Check if target is still in range
-	if not (target_to_attack in attack_detection.get_overlapping_bodies()):
-		target_to_attack = null
-		current_state = State.WALK
-		return
-
+	# Check if target is still in range (use a slightly larger buffer)
+	var in_range = false
+	for body in attack_detection.get_overlapping_bodies():
+		if body == target_to_attack:
+			in_range = true
+			break
+	
+	if not in_range:
+		# Check raycast as fallback for range
+		if ray_cast.is_colliding() and ray_cast.get_collider() == target_to_attack:
+			in_range = true
+			
 	# Deal damage
 	if target_to_attack.has_method("take_damage"):
 		target_to_attack.take_damage(damage)
