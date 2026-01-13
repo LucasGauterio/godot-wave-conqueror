@@ -12,6 +12,11 @@ func toggle_pause():
 func _on_resume_button_pressed():
 	toggle_pause()
 
+func _on_debug_button_pressed():
+	if GlobalSettings:
+		GlobalSettings.show_debug_hitboxes = !GlobalSettings.show_debug_hitboxes
+		get_tree().debug_collisions_hint = GlobalSettings.show_debug_hitboxes
+
 func _on_menu_button_pressed():
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://scenes/ui/menu.tscn")

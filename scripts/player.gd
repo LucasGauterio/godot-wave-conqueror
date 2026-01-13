@@ -9,7 +9,6 @@ enum State { IDLE, WALK, RUN, ATTACK, KNOCKBACK, DIE }
 var current_state: State = State.IDLE
 var is_mounted: bool = false
 var last_direction: float = 1.0
-@export var show_debug_hitbox: bool = true
 
 enum WeaponType { SWORD, AXE, MACE, BOW, WAND, STAFF }
 enum OffHandType { NONE, SHIELD, GRIMOIRE }
@@ -50,6 +49,10 @@ func _ready():
 	# Defer signal emission to ensure UI is ready if connected
 	call_deferred("emit_health_changed")
 	call_deferred("emit_signal", "gold_changed", gold)
+	
+	# Connect to Global Debug Toggle
+	if GlobalSettings:
+		GlobalSettings.debug_toggled.connect(func(_on): queue_redraw())
 
 func add_gold(amount: int):
 	gold += amount
@@ -261,7 +264,7 @@ func _draw():
 			draw_circle(weapon_tip, 6, Color(0.2, 0.8, 1.0, 0.8))
 
 	# 7. Debug Hitbox
-	if show_debug_hitbox:
+	if GlobalSettings and GlobalSettings.show_debug_hitboxes:
 		var outline_color = Color(1, 0, 0, 0.5)
 		draw_arc(Vector2(0, -15), 15, 0, TAU, 16, outline_color, 1.0)
 		draw_arc(Vector2(0, 15), 15, 0, TAU, 16, outline_color, 1.0)

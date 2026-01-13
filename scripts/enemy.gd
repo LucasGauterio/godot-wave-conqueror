@@ -9,7 +9,6 @@ enum Tier { COMMON, ELITE, BOSS, COMMANDER_BOSS, FINAL_BOSS }
 @export var damage: int = 1
 @export var score_value: int = 10
 @export var tier: Tier = Tier.COMMON
-@export var show_debug_hitbox: bool = true
 
 var current_health: int
 var current_state: State = State.WALK
@@ -42,6 +41,10 @@ func _ready():
 	
 	apply_tier_scaling()
 	queue_redraw()
+	
+	# Connect to Global Debug Toggle
+	if GlobalSettings:
+		GlobalSettings.debug_toggled.connect(func(_on): queue_redraw())
 
 func apply_tier_scaling():
 	# Scaling: +10% cumulatively
@@ -180,7 +183,7 @@ func _draw():
 		draw_circle(club_tip, 6, detail_color)
 
 	# 4. Optional: Draw Debug Hitbox Outline
-	if show_debug_hitbox:
+	if GlobalSettings and GlobalSettings.show_debug_hitboxes:
 		var outline_color = Color(0, 1, 0, 0.5)
 		draw_arc(Vector2(0, -15), 15, 0, TAU, 16, outline_color, 1.0)
 		draw_arc(Vector2(0, 15), 15, 0, TAU, 16, outline_color, 1.0)
