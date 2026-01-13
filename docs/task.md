@@ -35,7 +35,7 @@
   - [ ] Enemy System <!-- id: 22 -->
     - [x] Enemy base scene and vertical movement <!-- id: 23 -->
     - [ ] Enemy types (Basic, Elite, Boss) <!-- id: 24 -->
-    - [ ] Enemy damage/health logic <!-- id: 25 -->
+    - [x] Enemy damage/health logic <!-- id: 25 -->
   - [ ] Shop & Inventory <!-- id: 26 -->
     - [ ] Shop UI and Buy/Sell logic <!-- id: 27 -->
     - [ ] Chest/Storage system <!-- id: 28 -->
@@ -43,7 +43,7 @@
     - [ ] Wall scene with repair/upgrade <!-- id: 30 -->
     - [ ] Static defenses (Archers, Ballistae, Traps) <!-- id: 31 -->
   - [ ] Wave & Game Management <!-- id: 32 -->
-    - [ ] Wave spawning and difficulty scaling <!-- id: 33 -->
+    - [x] Wave spawning and difficulty scaling <!-- id: 33 -->
     - [ ] Level-up system (Knight & Horse) <!-- id: 34 -->
     - [ ] Territory expansion logic <!-- id: 35 -->
 - [x] Create artifacts <!-- id: 6 -->

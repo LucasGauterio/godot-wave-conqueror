@@ -45,6 +45,25 @@ func _physics_process(delta):
 	# Check for collisions after moving
 	if current_state == State.WALK:
 		check_collisions()
+	
+	update_animations()
+
+func update_animations():
+	# Simple state-to-animation mapping
+	var anim_name = "walk"
+	
+	match current_state:
+		State.WALK:
+			anim_name = "walk"
+		State.ATTACK:
+			anim_name = "attack"
+		State.DIE:
+			anim_name = "die"
+	
+	if animated_sprite.sprite_frames.has_animation(anim_name):
+		# Only change if different to avoid restarting loop unless needed
+		if animated_sprite.animation != anim_name:
+			animated_sprite.play(anim_name)
 
 func move_forward(delta):
 	# Enemies move vertically down (positive Y)
@@ -104,4 +123,9 @@ func die():
 	velocity = Vector2.ZERO
 	collision_shape.set_deferred("disabled", true)
 	died.emit(self)
+	
+	if animated_sprite.sprite_frames.has_animation("die"):
+		animated_sprite.play("die")
+		await animated_sprite.animation_finished
+	
 	queue_free()

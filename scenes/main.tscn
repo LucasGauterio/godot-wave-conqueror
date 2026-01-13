@@ -4,12 +4,35 @@
 [ext_resource type="PackedScene" uid="uid://pause_menu_01" path="res://scenes/ui/pause_menu.tscn" id="2_pause"]
 [ext_resource type="PackedScene" uid="uid://hud_01" path="res://scenes/ui/hud.tscn" id="3_hud"]
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://scripts/wave_manager.gd" id="4_wave"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
 
 [node name="Knight" parent="." instance=ExtResource("1_knight")]
 position = Vector2(576, 500)
+
+[node name="WaveManager" type="Node" parent="."]
+script = ExtResource("4_wave")
+
+[node name="SpawnPoints" type="Node2D" parent="."]
+
+[node name="Lane1" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(100, -50)
+
+[node name="Lane2" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(300, -50)
+
+[node name="Lane3" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(500, -50)
+
+[node name="Lane4" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(700, -50)
+
+[node name="Lane5" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(900, -50)
+
+[node name="Enemies" type="Node2D" parent="."]
 
 [node name="UI" type="CanvasLayer" parent="."]
 
