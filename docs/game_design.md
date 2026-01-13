@@ -116,6 +116,10 @@ Enemies need movement speed, health, and damage stats.
 - **Walls**:
   - Block waves. If destroyed, the zone is lost (or Game Over if base zone).
   - Have a visible health bar.
+  - **Visuals (Programmatic)**:
+    - **Wood Fence**: Light brown vertical rectangles with darker brown horizontal bars.
+    - **Stone Wall**: Grey brick pattern (rectangles).
+    - **Reinforced Stone Wall**: Dark grey with silver "X" patterns for metal braces.
   - Upgrades: Wood Fence -> Stone Wall -> Reinforced Stone Wall.
   - Can be repaired with gold.
 - **Static Defenses**:
