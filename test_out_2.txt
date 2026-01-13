@@ -1,0 +1,16 @@
+Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org
+
+--- Starting Tests ---
+Running test file: res://tests/unit/test_player.gd
+[test_player] Running tests...
+[test_player] Completed.
+Running test file: res://tests/unit/test_enemy.gd
+[test_enemy] Running tests...
+[FAIL] Velocity should be zero when blocked | Expected: (0.0, 0.0), Got: (0.0, 50.0)
+[test_enemy] Completed.
+Running test file: res://tests/unit/test_wall.gd
+Wall hit! Health: 70
+Wall hit! Health: 0
+Wall destroyed!
+Running test file: res://tests/unit/test_hud.gd
+--- Tests Completed ---

@@ -31,3 +31,8 @@ This document outlines missing information from the initial requirements and the
 
 **Question:** Where exactly can archers and ballistae be placed?
 **Assumption:** Archers and Ballistae are stationed on top of the walls. Traps are placed in the cells immediately in front of the walls.
+
+## 7. Combat Mechanics
+
+**Question:** Does the player need to click/tap to attack specifically?
+**Assumption:** The game uses an "Auto-Attack" system where the Knight (and enemies) automatically strike targets within their range. The player's primary role is positioning and ability usage.

@@ -12,13 +12,13 @@ The first game is a 2D wave defender game where the player controls one knight t
 - **Player**: Moves freely in 4 directions (Up/Down/Left/Right) within the current zone. Can't leave the current zone while battle is happening.
 - **Enemies**: Move vertically (Top-Down) in lanes.
 - **Combat**:
-  - Player can attack 4 directions (Left/Right/Up/Down).
+  - **Auto-Attack**: Both Player and Enemies automatically attack targets within their strike zones (Area2D nodes).
+  - **Strike Zones**: Combat is not hex/cell based but uses proximity detection.
   - **Attack Range**:
-    - **Melee**: Affects 1-2 lanes (based on weapon reach).
-    - **Ranged**: Affects up to 5 lanes.
-  - If the player has an enemy in an adjacent cell, the player attacks/knocks back the enemy, and the enemy takes damage.
-  - If the enemy advances to the player cell, the player takes damage.
-  - The enemies only stop if they are knocked back or die, stopping their column from advancing.
+    - **Melee**: Affects targets in front of the actor within a strike zone (approx 1 lane width).
+    - **Ranged**: Planned to affect up to 5 lanes.
+  - **Target Priority**: Enemies prioritize the Player or Wall over their own allies. They will switch targets if a higher priority target enters their range.
+  - **No-Pushing Physics**: Actors do not physically push each other. If an actor detects an obstacle or ally in front, they stop moving (zero velocity) but remain in their current state.
 
 ### Progression
 
@@ -32,6 +32,9 @@ The first game is a 2D wave defender game where the player controls one knight t
   - After defeating the boss enemy, the player gains their territory (Conquest).
   - The battlefield moves forward to the new zone.
   - New walls need to be built and defenses hired for the new zone.
+  - **Defeat & Game Over**:
+  - **Wall Destruction**: If the wall's health reaches 0%, a "Defeat" screen appears.
+  - **Player Death**: If the Knight's health reaches 0, a "Defeat" screen appears.
   - **Retreat**: If a conquered zone is lost, battle retreats to the previous zone.
   - **Game Over**: If the first (base) zone is lost.
 - **Leveling**: After each wave, the player can level up the Knight and the Horse.
@@ -77,7 +80,7 @@ Animations: Walk, Attack, Knockback, Die.
 
 - **Walls**:
   - Block waves. If destroyed, the zone is lost (or Game Over if base zone).
-  - Have a health percentage (100%).
+  - Have a visible health bar.
   - Upgrades: Wood Fence -> Stone Wall -> Reinforced Stone Wall.
   - Can be repaired with gold.
 - **Static Defenses**:

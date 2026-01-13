@@ -149,6 +149,7 @@ func check_collisions():
 	# Pass 2: Check Raycast
 	if ray_cast.is_colliding():
 		var collider = ray_cast.get_collider()
+		if is_instance_valid(collider) and collider != self:
 			if collider.is_in_group("enemies"):
 				potential_blocked = true
 

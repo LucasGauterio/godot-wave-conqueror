@@ -1,22 +1,23 @@
 extends "res://scripts/test_runner.gd".TestBase
 
 func run():
-	test_initial_state()
-	test_movement_speed()
-	test_state_machine()
-	test_health_logic()
-	test_attack_range()
+	print("[test_player] Running tests...")
+	await test_initial_state()
+	await test_movement_speed()
+	await test_state_machine()
+	await test_health_logic()
+	print("[test_player] Completed.")
 
 func test_initial_state():
 	var player = load("res://scenes/player/knight.tscn").instantiate()
-	runner.root.add_child(player)
+	await wait_for_ready(player)
 	assert_eq(player.current_state, player.State.IDLE, "Player should start in IDLE state")
 	assert_eq(player.is_mounted, false, "Player should not be mounted initially")
 	player.free()
 
 func test_movement_speed():
 	var player = load("res://scenes/player/knight.tscn").instantiate()
-	runner.root.add_child(player)
+	await wait_for_ready(player)
 	player.speed = 100.0
 	player.run_speed_multiplier = 2.0
 	
@@ -32,13 +33,11 @@ func test_movement_speed():
 
 func test_state_machine():
 	var player = load("res://scenes/player/knight.tscn").instantiate()
-	runner.root.add_child(player)
+	await wait_for_ready(player)
 	
 	player.enter_state(player.State.WALK)
 	assert_eq(player.current_state, player.State.WALK, "Player should switch to WALK state")
 	
-	# Test Attack Lock (assuming logic prevents moving during attack... 
-	# Actually the current logic prevents enter_state if ATTACK -> IDLE, but let's test enter_state logic)
 	player.enter_state(player.State.ATTACK)
 	assert_eq(player.current_state, player.State.ATTACK, "Player should switch to ATTACK state")
 	
@@ -46,16 +45,14 @@ func test_state_machine():
 
 func test_health_logic():
 	var player = load("res://scenes/player/knight.tscn").instantiate()
-	runner.root.add_child(player)
+	await wait_for_ready(player)
 	
 	player.max_health = 100
-	player._ready()
+	player.current_health = 100
 	
 	player.take_damage(10)
 	assert_eq(player.current_health, 90, "Health should decrease by damage amount")
 	
-	# In a real test we would spy on the signal, but checking state is enough for now
-	# or we can manually connect a validator
 	var signal_results = []
 	player.health_changed.connect(func(c, m): signal_results.append([c, m]))
 	
@@ -63,19 +60,5 @@ func test_health_logic():
 	assert_eq(player.current_health, 80, "Health should decrease again")
 	assert_gt(signal_results.size(), 0, "Health changed signal should be emitted")
 	assert_eq(signal_results[0][0], 80, "Signal should carry correct current health")
-	
-	player.free()
-
-func test_attack_range():
-	var player = load("res://scenes/player/knight.tscn").instantiate()
-	runner.root.add_child(player)
-	
-	player.attack_range_lanes = 2.0
-	player.update_attack_direction()
-	assert_eq(player.attack_area.scale.x, 2.0, "Attack area scale X should match range lanes")
-	
-	player.attack_range_lanes = 5.0
-	player.update_attack_direction()
-	assert_eq(player.attack_area.scale.x, 5.0, "Attack area scale X should match ranged lanes")
 	
 	player.free()

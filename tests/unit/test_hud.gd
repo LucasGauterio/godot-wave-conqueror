@@ -1,12 +1,14 @@
 extends "res://scripts/test_runner.gd".TestBase
 
 func run():
-	test_hud_updates()
+	print("[test_hud] Running tests...")
+	await test_hud_updates()
+	print("[test_hud] Completed.")
 
 func test_hud_updates():
 	var hud_scene = load("res://scenes/ui/hud.tscn")
 	var hud = hud_scene.instantiate()
-	runner.root.add_child(hud)
+	await wait_for_ready(hud)
 	
 	# Verify initial state (based on scene default text, or just existence)
 	assert_true(hud.has_method("update_health"), "HUD should have update_health method")

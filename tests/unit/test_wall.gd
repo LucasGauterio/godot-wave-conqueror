@@ -1,15 +1,17 @@
 extends "res://scripts/test_runner.gd".TestBase
 
 func run():
-	test_wall_health()
-	test_wall_destruction()
+	print("[test_wall] Running tests...")
+	await test_wall_health()
+	await test_wall_destruction()
+	print("[test_wall] Completed.")
 
 func test_wall_health():
 	var wall = load("res://scenes/defenses/wall.tscn").instantiate()
-	runner.root.add_child(wall)
+	await wait_for_ready(wall)
 	
 	wall.max_health = 100
-	wall._ready()
+	wall.current_health = 100
 	
 	wall.take_damage(30)
 	assert_eq(wall.current_health, 70, "Wall health should decrease")
@@ -18,7 +20,7 @@ func test_wall_health():
 
 func test_wall_destruction():
 	var wall = load("res://scenes/defenses/wall.tscn").instantiate()
-	runner.root.add_child(wall)
+	await wait_for_ready(wall)
 	
 	var signal_emitted = [false]
 	wall.destroyed.connect(func(): signal_emitted[0] = true)

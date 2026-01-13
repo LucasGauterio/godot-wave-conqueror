@@ -9,6 +9,7 @@ extends Node2D
 @onready var kingdom_wall = $KingdomWall
 var enemy_scene = preload("res://scenes/enemies/enemy_base.tscn")
 var defeat_screen_scene = preload("res://scenes/ui/defeat_screen.tscn")
+var victory_screen_scene = preload("res://scenes/ui/victory_screen.tscn")
 
 func _ready():
 	# Connect Player Signals to HUD
@@ -23,6 +24,11 @@ func _ready():
 
 	if wave_manager:
 		wave_manager.enemy_spawned.connect(spawn_enemy)
+		if hud:
+			wave_manager.wave_started.connect(hud.update_wave)
+			wave_manager.counts_updated.connect(hud.update_enemies)
+			
+		wave_manager.wave_completed.connect(trigger_victory)
 		wave_manager.start_wave()
 		
 	if kingdom_wall:
@@ -32,6 +38,18 @@ func trigger_defeat():
 	var defeat_ui = defeat_screen_scene.instantiate()
 	add_child(defeat_ui)
 	get_tree().paused = true
+
+func trigger_victory(wave_number: int):
+	var victory_ui = victory_screen_scene.instantiate()
+	add_child(victory_ui)
+	victory_ui.next_wave_requested.connect(start_next_wave)
+	
+	# Pause game logic while looking at victory screen
+	get_tree().paused = true
+
+func start_next_wave():
+	get_tree().paused = false
+	wave_manager.start_wave()
 
 func spawn_enemy(type: String, lane_index: int):
 	var enemy = enemy_scene.instantiate()

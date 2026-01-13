@@ -3,8 +3,11 @@ extends SceneTree
 # Simple Test Runner for Godot
 
 func _init():
+	_run_deferred.call_deferred()
+
+func _run_deferred():
 	print("--- Starting Tests ---")
-	run_tests()
+	await run_tests()
 	print("--- Tests Completed ---")
 	quit()
 
@@ -23,7 +26,7 @@ func run_test(path: String):
 			test_script.runner = self
 		
 		if test_script.has_method("run"):
-			test_script.run()
+			await test_script.run()
 		
 		if test_script is Node:
 			test_script.queue_free()
@@ -56,6 +59,13 @@ class TestBase:
 		else:
 			_fail_count += 1
 			print("[FAIL] " + message + " | Expected > " + str(threshold) + ", Got: " + str(actual))
+
+	func wait_for_ready(node: Node):
+		if not node.is_inside_tree():
+			runner.root.add_child(node)
+		# Wait 2 frames to ensure @onready and _ready are done
+		await runner.process_frame
+		await runner.process_frame
 
 	func run():
 		print("Executing tests...")

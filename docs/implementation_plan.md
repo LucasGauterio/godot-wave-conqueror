@@ -20,31 +20,34 @@ This plan outlines the design and development steps for a 2D wave defender game 
 
 ### Component Breakdown
 
-#### [NEW] [Player](file:///g:/Documents/MBA/games/scenes/player/player.tscn)
+#### [COMPLETED] [Player](file:///g:/Documents/MBA/games/scenes/player/player.tscn)
 
-- Knight scene with `KinematicBody2D` (or `CharacterBody2D` in Godot 4).
-- Horizontal movement logic.
-- Mounted state (Horse) with speed multipliers.
-- Attack logic based on "adjacent cell" collision or raycasting.
+- Knight scene with `CharacterBody2D`. [COMPLETED]
+- Horizontal & Vertical movement logic. [COMPLETED]
+- State Machine (IDLE, WALK, ATTACK). [COMPLETED]
+- Auto-attack logic based on strike zones (Area2D). [COMPLETED]
 
-#### [NEW] [Enemy Base](file:///g:/Documents/MBA/games/scenes/enemies/enemy_base.tscn)
+#### [COMPLETED] [Enemy Base](file:///g:/Documents/MBA/scenes/enemies/enemy_base.tscn)
 
-- Base class for all enemy types (Basic, Elite, Boss).
-- Vertical movement logic (advancing towards walls).
-- Stats: Health, Damage, Speed.
-- Shared animations: Walk, Attack, Knockback, Die.
+- Base class for all enemy types. [COMPLETED]
+- Vertical movement logic and lane stopping (No-Pushing). [COMPLETED]
+- Stats: Health, Damage, Speed. [COMPLETED]
+- Animations: Walk, Attack, Idle, Die. [COMPLETED]
+- Target Priority (Knight > Wall > Ally). [COMPLETED]
 
-#### [NEW] [Base Defenses](file:///g:/Documents/MBA/games/scenes/defenses/wall.tscn)
+#### [IN PROGRESS] [Base Defenses](file:///g:/Documents/MBA/scenes/defenses/wall.tscn)
 
-- **Wall**: Health-based defensive structure. Upgradeable levels (Wood, Stone, Reinforced).
-- **Archers/Ballistae**: Automated attack units stationed on the wall with limited deployment time.
-- **Traps**: Single-use or cooldown-based environmental damage.
+- **Wall**: Health-based defensive structure. [COMPLETED]
+- **Wall UI**: Health bar and destruction signal. [COMPLETED]
+- **Archers/Ballistae**: Automated attack units (Not started).
+- **Traps**: Environmental damage (Not started).
 
-#### [NEW] [Management / UI](file:///g:/Documents/MBA/games/scenes/ui/menu.tscn)
+#### [IN PROGRESS] [Management / UI](file:///g:/Documents/MBA/scenes/ui/menu.tscn)
 
-- **Main Menu**: Initial screen with Start (enters main game), Options (placeholder for cross-platform settings), and Quit functionality.
-- **Loot Manager**: Logic for rolling items and gold from tables based on rarity and wave number. Gold is part of the end-of-wave reward.
-- **Inventory/Shop UI**: CanvasLayer scenes for managing items and gold.
+- **Main Menu**: Start/Quit functionality. [COMPLETED]
+- **Defeat Screen**: Triggered on Wall/Player death. [COMPLETED]
+- **Loot Manager**: Reward chest logic (In Discovery).
+- **Inventory/Shop UI**: Item management (Not started).
 
 ---
 

@@ -19,7 +19,7 @@ This document summarizes all user requests, constraints, and established pattern
 - **Continuous Improvement**:
   - **Requirement**: After resolving complex issues, summarize the root cause and update these Directives with new standards to prevent recurrence.
 - **Git Workflow**:
-  - **Requirement**: A commit **MUST** be made and pushed `origin main` after every implemented, changed, or tested feature.
+  - **Requirement**: A commit **MUST** be made and pushed `origin develop` after every implemented, changed, or tested feature.
   - **Branching**: Use `develop` branch for active development. Subtasks are committed/pushed to `develop`. Merge to `main` ONLY when a full feature/task is complete and stable.
 
 ## 2. Gameplay Mechanics & Rules
@@ -27,7 +27,11 @@ This document summarizes all user requests, constraints, and established pattern
 - **Movement System**:
   - **Player**: Moves freely (Up/Down/Left/Right).
   - **Enemies**: Move vertically in "lanes".
-  - **Combat**: Player attacks enemies in _adjacent_ cells.
+  - **Unit Separation**: Actors do not physically push each other. Use `velocity = Vector2.ZERO` and detection areas (is_blocked) to stop movement when obstacles or allies are detected.
+- **Combat**:
+  - **Auto-Attack**: Actors automatically attack targets in their strike zones (Area2D).
+  - **Target Priority**: Enemies/Goblins MUST prioritize the Player (Knight) or Wall over their own allies.
+  - **Switching**: If already attacking a lower-priority target (e.g. Wall), they MUST switch to a higher-priority target (e.g. Knight) if it enters range.
 - **Progression**:
   - **Mounts**: Permanent speed/stat upgrade. No dismount mechanic.
   - **Territory**:
@@ -80,3 +84,9 @@ Before marking a task as "Done":
 
 - **Physics in Tests**: `Area2D` and `CollisionShape2D` updates generally require a physics frame.
   - _Rule_: For collision tests, trust the signal/logic flow or use `await get_tree().physics_frame` (requires async test runner support), otherwise mock the interaction.
+
+### Scene Management
+
+- **TSCN Integrity**: Direct editing of `.tscn` files can corrupt resource IDs or `load_steps`.
+  - _Rule_: When rebuilding scenes via code, ensure the root node path matches the script, and all sub-resources are properly defined before being referenced.
+  - _Rule_: If a "root node cannot specify parent" error occurs, it usually means the indentation or node order in the `.tscn` file is incorrect.
