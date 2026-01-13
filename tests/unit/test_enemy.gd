@@ -3,6 +3,7 @@ extends "res://scripts/test_runner.gd".TestBase
 func run():
 	test_movement()
 	test_damage_and_death()
+	test_attack_logic()
 
 func test_movement():
 	var enemy = load("res://scenes/enemies/enemy_base.tscn").instantiate()
@@ -34,5 +35,25 @@ func test_damage_and_death():
 	enemy.take_damage(10) # 6 - 10 = -4
 	assert_eq(enemy.current_health, -4, "Enemy health can go negative internally")
 	assert_eq(enemy.current_state, enemy.State.DIE, "Enemy should enter DIE state")
+	
+	enemy.free()
+
+func test_attack_logic():
+	var enemy = load("res://scenes/enemies/enemy_base.tscn").instantiate()
+	runner.root.add_child(enemy)
+	
+	# Mock collision logic is hard without physics server, so we test perform_attack specifically
+	# We can't easily mock get_slide_collision without a physics frame
+	# So we trust checking that perform_attack exists and logic flow is sound via integration or playtesting
+	# But we CAN verify state transitions logic if we could force a collision
+	# For unit tests, testing 'take_damage' and 'die' which we did is good
+	
+	# Let's test cooldown logic manually
+	enemy.current_state = enemy.State.ATTACK
+	enemy.time_since_last_attack = 1.0
+	
+	# Simulate physics process decrementing cooldown
+	enemy._physics_process(0.5)
+	assert_eq(enemy.time_since_last_attack, 0.5, "Cooldown should decrease")
 	
 	enemy.free()
