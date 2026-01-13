@@ -60,7 +60,10 @@ func update_animations():
 	
 	match current_state:
 		State.WALK:
-			anim_name = "walk"
+			if is_blocked:
+				anim_name = "idle"
+			else:
+				anim_name = "walk"
 		State.ATTACK:
 			anim_name = "attack"
 		State.DIE:
