@@ -37,10 +37,16 @@ var gold: int = 0
 
 var base_damage: int = 2
 var knockback: float = 200.0
-var attack_range_lanes: float = 1.0 # 1 lane = ~64px usually, but scaling the area
+
+# Reach Parameters
+@export var arm_length: float = 15.0
+@export var weapon_length: float = 60.0 # base_reach (30) + extra_reach (30)
 
 func _ready():
 	current_health = max_health
+	# Initialize AttackArea radius based on reach
+	update_weapon_reach()
+	
 	# Defer signal emission to ensure UI is ready if connected
 	call_deferred("emit_health_changed")
 	call_deferred("emit_signal", "gold_changed", gold)
@@ -226,6 +232,13 @@ func _draw():
 			if shape is CircleShape2D:
 				draw_arc(Vector2.ZERO, shape.radius, 0, TAU, 32, Color(1, 0.2, 0.2, 0.2), 2.0)
 
+func update_weapon_reach():
+	if attack_area and attack_area.has_node("CollisionShape2D"):
+		var shape = attack_area.get_node("CollisionShape2D").shape
+		if shape is CircleShape2D:
+			shape.radius = arm_length + weapon_length
+	queue_redraw()
+
 func check_auto_attack():
 	if time_since_last_attack <= 0 and current_state != State.ATTACK:
 		var bodies = attack_area.get_overlapping_bodies()
@@ -242,8 +255,6 @@ func update_attack_direction():
 	# If we have movement, update attack area position/rotation
 	if velocity != Vector2.ZERO:
 		attack_area.rotation = velocity.angle()
-	
-	attack_area.scale = Vector2(attack_range_lanes, 1.0)
 
 func handle_input():
 	if Input.is_action_just_pressed("attack") and time_since_last_attack <= 0:
@@ -275,15 +286,18 @@ func handle_input():
 			enter_state(State.IDLE)
 
 func perform_attack():
-	var bodies = attack_area.get_overlapping_bodies()
-	var hit = false
-	for body in bodies:
-		if body.has_method("take_damage") and body != self:
-			body.take_damage(base_damage, knockback)
-			hit = true
-	
-	# Always start cooldown to prevent infinite animation loop
+	# Always start cooldown
 	time_since_last_attack = attack_cooldown
+	
+	# Delay damage to match the peak of the animation (~0.2s into the 0.3s state)
+	if get_tree():
+		await get_tree().create_timer(0.15).timeout
+		if not is_instance_valid(self) or current_state == State.DIE: return
+		
+		var bodies = attack_area.get_overlapping_bodies()
+		for body in bodies:
+			if body.has_method("take_damage") and body != self:
+				body.take_damage(base_damage, knockback)
 
 func get_actual_speed() -> float:
 	var base = speed

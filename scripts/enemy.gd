@@ -24,6 +24,10 @@ var time_since_last_attack: float = 0.0
 
 @onready var health_bar = $HealthBar
 
+# Reach Parameters
+@export var arm_length: float = 15.0
+@export var weapon_length: float = 22.0 # ext (12) + club (10)
+
 # Programmatic Drawing Variables
 var walk_timer: float = 0.0
 var attack_anim_timer: float = 0.0
@@ -231,8 +235,9 @@ func perform_attack():
 	if ray_cast.is_colliding() and ray_cast.get_collider() == target_to_attack:
 		in_range = true
 	else:
-		# Small distance check as fallback (30px width + safety)
-		if global_position.distance_to(target_to_attack.global_position) < 50:
+		# Distance center-to-center < total reach + target radius
+		var target_radius = 15.0 # standard Knight radius
+		if global_position.distance_to(target_to_attack.global_position) < (arm_length + weapon_length + target_radius):
 			in_range = true
 			
 	if not in_range:
@@ -241,17 +246,20 @@ func perform_attack():
 		current_state = State.WALK
 		return
 
-	# Deal damage
-	# Deal damage
-	if target_to_attack.has_method("take_damage"):
-		# print("[Enemy %s] Attacking %s at %s" % [name, target_to_attack.name, position])
-		target_to_attack.take_damage(damage)
-		time_since_last_attack = attack_cooldown
+	# Deal damage with delay to match animation peak
+	time_since_last_attack = attack_cooldown # Start cooldown immediately
+	
+	if get_tree():
+		await get_tree().create_timer(0.2).timeout
+		if not is_instance_valid(self) or current_state == State.DIE: return
+		if not is_instance_valid(target_to_attack): return
 		
-		if not is_instance_valid(target_to_attack) or (target_to_attack.has_method("get") and target_to_attack.get("current_health") <= 0):
-			# print("[Enemy %s] Target %s defeated!" % [name, target_to_attack.name])
-			target_to_attack = null
-			current_state = State.WALK
+		if target_to_attack.has_method("take_damage"):
+			target_to_attack.take_damage(damage)
+			
+			if not is_instance_valid(target_to_attack) or (target_to_attack.has_method("get") and target_to_attack.get("current_health") <= 0):
+				target_to_attack = null
+				current_state = State.WALK
 
 func take_damage(amount: int, knockback_force: float = 0.0):
 	current_health -= amount
