@@ -88,10 +88,19 @@ func move_forward(delta):
 var target_to_attack: Node2D = null
 
 func check_collisions():
-	# If we have a target, check if it's still alive and valid
+	# If we have a target, check if we should switch priority
 	if is_instance_valid(target_to_attack):
-		# If the target is the player or wall, we stay in attack mode
-		# We'll rely on perform_attack's range check to drop it if they get away
+		# If we are attacking the wall (or anything else), but the Knight is close, SWITCH!
+		if target_to_attack.name != "Knight":
+			var overlapping = attack_detection.get_overlapping_bodies()
+			for body in overlapping:
+				if body.name == "Knight":
+					print("[Enemy %s] SWITCHING TARGET: Wall -> Knight at %s" % [name, position])
+					target_to_attack = body
+					current_state = State.ATTACK
+					return
+
+		# Verify current target is still valid/in range (handled in perform_attack mostly, but good to check state)
 		current_state = State.ATTACK
 		return
 
@@ -101,22 +110,58 @@ func check_collisions():
 	# Pass 1: Look for Player or Wall (High Priority)
 	for body in overlapping:
 		if body == self: continue
-		if body.name == "Knight" or body.is_in_group("wall") or body.get_collision_layer_value(3):
+		
+		# Prioritize Knight
+		if body.name == "Knight":
+			print("[Enemy %s] TARGET FOUND: Knight at %s" % [name, position])
 			target_to_attack = body
 			current_state = State.ATTACK
 			return
+			
+		# Then Wall
+		if body.is_in_group("wall") or body.get_collision_layer_value(3):
+			# Don't return yet, keep looking for Knight in this same list? 
+			# Actually, if we found a wall, we can set it, but if Knight is also there, Knight wins.
+			# Let's just set target and keep iterating? No, simple is best. 
+			# We already prioritized Knight above. If we are here, body is NOT Knight.
+			# But is Knight further down the list?
+			# Let's verify if Knight is in the list before settling for Wall.
+			var knight_in_list = false
+			for b in overlapping:
+				if b.name == "Knight": 
+					knight_in_list = true
+					target_to_attack = b
+					break
+			
+			if knight_in_list:
+				print("[Enemy %s] TARGET FOUND: Knight (overrode Wall) at %s" % [name, position])
+				current_state = State.ATTACK
+				return
+			else:
+				print("[Enemy %s] TARGET FOUND: Wall at %s" % [name, position])
+				target_to_attack = body
+				current_state = State.ATTACK
+				return
 		
 		if body.is_in_group("enemies"):
 			potential_blocked = true
 
-	# Pass 2: Check Raycast for line-of-sight targets
+	# Pass 2: Check Raycast
 	if ray_cast.is_colliding():
 		var collider = ray_cast.get_collider()
 		if is_instance_valid(collider) and collider != self:
-			if collider.name == "Knight" or collider.is_in_group("wall") or collider.get_collision_layer_value(3):
+			if collider.name == "Knight":
+				print("[Enemy %s] RAYCAST TARGET: Knight at %s" % [name, position])
 				target_to_attack = collider
 				current_state = State.ATTACK
 				return
+			
+			if collider.is_in_group("wall") or collider.get_collision_layer_value(3):
+				print("[Enemy %s] RAYCAST TARGET: Wall at %s" % [name, position])
+				target_to_attack = collider
+				current_state = State.ATTACK
+				return
+
 			if collider.is_in_group("enemies"):
 				potential_blocked = true
 
@@ -125,18 +170,18 @@ func check_collisions():
 		is_blocked = true
 		return
 
-	# If nothing detected, make sure we are walking
+	# If nothing detected
 	if current_state == State.ATTACK:
+		print("[Enemy %s] No target, resuming WALK at %s" % [name, position])
 		current_state = State.WALK
 
 func perform_attack():
-	# If target is gone or dead, look for a new one or walk
 	if not is_instance_valid(target_to_attack):
 		target_to_attack = null
 		current_state = State.WALK
 		return
 
-	# Check if target is still in range (use a slightly larger buffer)
+	# Check range
 	var in_range = false
 	for body in attack_detection.get_overlapping_bodies():
 		if body == target_to_attack:
@@ -144,17 +189,23 @@ func perform_attack():
 			break
 	
 	if not in_range:
-		# Check raycast as fallback for range
 		if ray_cast.is_colliding() and ray_cast.get_collider() == target_to_attack:
 			in_range = true
 			
+	if not in_range:
+		print("[Enemy %s] Target %s out of range, stopping attack." % [name, target_to_attack.name])
+		target_to_attack = null
+		current_state = State.WALK
+		return
+
 	# Deal damage
 	if target_to_attack.has_method("take_damage"):
+		print("[Enemy %s] Attacking %s at %s" % [name, target_to_attack.name, position])
 		target_to_attack.take_damage(damage)
 		time_since_last_attack = attack_cooldown
 		
-		# Check if target is killed immediately
 		if not is_instance_valid(target_to_attack) or (target_to_attack.has_method("get") and target_to_attack.get("current_health") <= 0):
+			print("[Enemy %s] Target %s defeated!" % [name, target_to_attack.name])
 			target_to_attack = null
 			current_state = State.WALK
 

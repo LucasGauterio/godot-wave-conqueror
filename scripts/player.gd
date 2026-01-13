@@ -139,6 +139,7 @@ func enter_state(new_state: State):
 	if current_state == new_state:
 		return
 		
+	print("[Knight] State Change: %s -> %s at %s" % [State.keys()[current_state], State.keys()[new_state], position])
 	current_state = new_state
 	
 	if new_state == State.ATTACK:
