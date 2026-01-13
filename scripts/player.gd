@@ -21,6 +21,7 @@ enum OffHandType { NONE, SHIELD, GRIMOIRE }
 var walk_timer: float = 0.0
 var attack_anim_timer: float = 0.0
 var face_direction: Vector2 = Vector2.DOWN
+var last_attack_direction: Vector2 = Vector2.DOWN
 
 @onready var collision_shape = $CollisionShape2D
 @onready var attack_area = $AttackArea
@@ -146,26 +147,46 @@ func _draw():
 			draw_rect(Rect2(off_pos.x - 5, off_pos.y - 5, 10, 10), Color(0.3, 0.1, 0.5))
 
 	# 6. Draw Weapon
-	var weapon_reach = 15.0 * sin(attack_anim_timer * PI)
+	var weapon_reach_factor = sin(attack_anim_timer * PI)
 	var weapon_dir = face_direction
+	if current_state == State.ATTACK:
+		weapon_dir = last_attack_direction
+	
 	if weapon_dir.length() < 0.1: 
 		weapon_dir = Vector2.RIGHT if last_direction > 0 else Vector2.LEFT
 	else:
 		weapon_dir = weapon_dir.normalized()
 		
-	var weapon_pos = weapon_dir * (20 + weapon_reach)
+	var base_reach = 40.0
+	var extra_reach = 30.0 * weapon_reach_factor
+	var weapon_pos = weapon_dir * (base_reach + extra_reach)
 	
 	match weapon_type:
 		WeaponType.SWORD:
-			draw_line(Vector2.ZERO, weapon_pos, metal_color, 4)
+			# Slash animation: rotate the line slightly during the swing
+			var angle_offset = (attack_anim_timer - 0.5) * 1.5 # -0.75 to 0.75 radians
+			var slash_dir = weapon_dir.rotated(angle_offset)
+			var slash_pos = slash_dir * (base_reach + extra_reach)
+			draw_line(Vector2.ZERO, slash_pos, metal_color, 4)
+			# Add a faint slash arc "trail"
+			if attack_anim_timer > 0:
+				draw_arc(Vector2.ZERO, base_reach + extra_reach, 
+					weapon_dir.angle() - 0.5, weapon_dir.angle() + 0.5, 
+					16, Color(1, 1, 1, 0.3 * weapon_reach_factor), 2.0)
 		WeaponType.AXE:
-			draw_line(Vector2.ZERO, weapon_pos, wood_color, 4)
-			draw_rect(Rect2(weapon_pos.x - 6, weapon_pos.y - 6, 12, 12), metal_color)
+			var angle_offset = (attack_anim_timer - 0.5) * 2.0
+			var slash_dir = weapon_dir.rotated(angle_offset)
+			var slash_pos = slash_dir * (base_reach + extra_reach)
+			draw_line(Vector2.ZERO, slash_pos, wood_color, 4)
+			draw_rect(Rect2(slash_pos.x - 8, slash_pos.y - 8, 16, 16), metal_color)
 		WeaponType.BOW:
 			draw_arc(weapon_dir * 10, 12, weapon_dir.angle() - 1, weapon_dir.angle() + 1, 12, wood_color, 3.0)
-		_:
+			if attack_anim_timer > 0: # Draw arrow
+				draw_line(weapon_dir * 5, weapon_dir * (20 + 40 * weapon_reach_factor), Color.WHITE, 2)
+		_: # STAFF/MACE
+			# Pierce animation: straight thrust
 			draw_line(Vector2.ZERO, weapon_pos, wood_color, 4)
-			draw_circle(weapon_pos, 4, Color(0.2, 0.8, 1.0))
+			draw_circle(weapon_pos, 6, Color(0.2, 0.8, 1.0, 0.8))
 
 	# 7. Debug Hitbox
 	if show_debug_hitbox:
@@ -188,7 +209,7 @@ func check_auto_attack():
 		# 	print("[DEBUG] Knight sees ", bodies.size(), " bodies in attack area")
 		for body in bodies:
 			if body != self and (body.is_in_group("enemies") or body.has_method("take_damage")):
-				# print("[DEBUG] Knight attacking: ", body.name)
+				last_attack_direction = (body.global_position - global_position).normalized()
 				enter_state(State.ATTACK)
 				perform_attack()
 				break
@@ -202,6 +223,12 @@ func update_attack_direction():
 
 func handle_input():
 	if Input.is_action_just_pressed("attack") and time_since_last_attack <= 0:
+		last_attack_direction = face_direction
+		if last_attack_direction.length() < 0.1:
+			last_attack_direction = Vector2.RIGHT if last_direction > 0 else Vector2.LEFT
+		else:
+			last_attack_direction = last_attack_direction.normalized()
+			
 		enter_state(State.ATTACK)
 		perform_attack()
 		return
