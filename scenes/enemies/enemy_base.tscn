@@ -133,7 +133,7 @@ collision_mask = 13
 
 [node name="AttackDetection" type="Area2D" parent="."]
 collision_layer = 0
-collision_mask = 5
+collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AttackDetection"]
 position = Vector2(0, 40)
@@ -141,4 +141,4 @@ shape = SubResource("RectangleShape2D_detection")
 
 [node name="RayCast2D" type="RayCast2D" parent="."]
 target_position = Vector2(0, 60)
-collision_mask = 5
+collision_mask = 7

@@ -23,6 +23,8 @@ var time_since_last_attack: float = 0.0
 func _ready():
 	current_health = max_health
 
+var is_blocked: bool = false
+
 func _physics_process(delta):
 	if current_state == State.DIE:
 		return
@@ -30,9 +32,18 @@ func _physics_process(delta):
 	if time_since_last_attack > 0:
 		time_since_last_attack -= delta
 
+	# Reset blocked status each frame
+	is_blocked = false
+	
+	if current_state == State.WALK:
+		check_collisions() # This will set target_to_attack or is_blocked
+	
 	match current_state:
 		State.WALK:
-			move_forward(delta)
+			if is_blocked:
+				velocity = Vector2.ZERO
+			else:
+				move_forward(delta)
 		State.ATTACK:
 			velocity = Vector2.ZERO # Stop moving while attacking
 			if time_since_last_attack <= 0:
@@ -41,11 +52,6 @@ func _physics_process(delta):
 			pass
 
 	move_and_slide()
-	
-	# Check for collisions after moving
-	if current_state == State.WALK:
-		check_collisions()
-	
 	update_animations()
 
 func update_animations():
@@ -89,10 +95,7 @@ func check_collisions():
 		
 		# If it's another enemy, just stop (prevents pushing/stacking)
 		if body.is_in_group("enemies"):
-			velocity = Vector2.ZERO
-			# We don't change state to ATTACK unless we hit a target, 
-			# but we stay in WALK with zero velocity? 
-			# Better: stay in WALK but set velocity to zero.
+			is_blocked = true
 			return
 
 	# 2. Check raycast for precise line-of-sight
@@ -106,7 +109,7 @@ func check_collisions():
 			return
 		
 		if collider.is_in_group("enemies"):
-			velocity = Vector2.ZERO
+			is_blocked = true
 			return
 
 func perform_attack():
