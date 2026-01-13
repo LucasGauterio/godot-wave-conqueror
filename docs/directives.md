@@ -20,6 +20,7 @@ This document summarizes all user requests, constraints, and established pattern
   - **Requirement**: After resolving complex issues, summarize the root cause and update these Directives with new standards to prevent recurrence.
 - **Git Workflow**:
   - **Requirement**: A commit **MUST** be made and pushed `origin main` after every implemented, changed, or tested feature.
+  - **Branching**: Use `develop` branch for active development. Subtasks are committed/pushed to `develop`. Merge to `main` ONLY when a full feature/task is complete and stable.
 
 ## 2. Gameplay Mechanics & Rules
 
