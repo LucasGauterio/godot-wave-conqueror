@@ -109,7 +109,10 @@ animations = [{
 radius = 20.0
 height = 60.0
 
-[node name="EnemyBase" type="CharacterBody2D"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_detection"]
+size = Vector2(40, 60)
+
+[node name="EnemyBase" type="CharacterBody2D" groups=["enemies"]]
 motion_mode = 1
 script = ExtResource("1_enemy")
 
@@ -124,6 +127,18 @@ flip_v = false
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 15)
 shape = SubResource("CapsuleShape2D_enemy")
-# Enemies on layer 2 (Enemies) and mask 1 (Player/Walls)
+# Enemies on layer 2 (Enemies) and mask 1 (Player) + 3 (Wall) + 4 (Wall/Boundaries)
 collision_layer = 2
+collision_mask = 13
+
+[node name="AttackDetection" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackDetection"]
+position = Vector2(0, 40)
+shape = SubResource("RectangleShape2D_detection")
+
+[node name="RayCast2D" type="RayCast2D" parent="."]
+target_position = Vector2(0, 60)
 collision_mask = 5

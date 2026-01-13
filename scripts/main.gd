@@ -6,13 +6,16 @@ extends Node2D
 @onready var spawn_points = $SpawnPoints
 @onready var enemies_container = $Enemies
 
+@onready var kingdom_wall = $KingdomWall
 var enemy_scene = preload("res://scenes/enemies/enemy_base.tscn")
+var defeat_screen_scene = preload("res://scenes/ui/defeat_screen.tscn")
 
 func _ready():
 	# Connect Player Signals to HUD
 	if knight and hud:
 		knight.health_changed.connect(hud.update_health)
 		knight.gold_changed.connect(hud.update_gold)
+		knight.died.connect(trigger_defeat) # Player death also triggers defeat
 		
 		# Initialize HUD with current values
 		hud.update_health(knight.current_health, knight.max_health)
@@ -20,8 +23,15 @@ func _ready():
 
 	if wave_manager:
 		wave_manager.enemy_spawned.connect(spawn_enemy)
-		# Start the first wave
 		wave_manager.start_wave()
+		
+	if kingdom_wall:
+		kingdom_wall.destroyed.connect(trigger_defeat)
+
+func trigger_defeat():
+	var defeat_ui = defeat_screen_scene.instantiate()
+	add_child(defeat_ui)
+	get_tree().paused = true
 
 func spawn_enemy(type: String, lane_index: int):
 	var enemy = enemy_scene.instantiate()

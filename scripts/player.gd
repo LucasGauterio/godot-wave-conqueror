@@ -51,64 +51,76 @@ func die():
 	current_state = State.DIE
 	died.emit()
 
+@export var attack_cooldown: float = 0.5
+var time_since_last_attack: float = 0.0
+
 func _physics_process(delta):
 	if current_state == State.DIE or current_state == State.KNOCKBACK:
 		return
 
+	if time_since_last_attack > 0:
+		time_since_last_attack -= delta
+
 	handle_input()
+	
+	# Auto-attack detection
+	check_auto_attack()
+	
+	# If attacking, don't move (prevents pushing)
+	if current_state == State.ATTACK:
+		velocity = Vector2.ZERO
+		
 	move_and_slide()
 	update_animations()
-	
-	# Update Attack Area direction
-	if last_direction != 0:
-		# If moving purely vertical, rotate collision shape/area?
-		# Simpler: just position the area based on the last non-zero velocity vector
-		pass # Logic moved to update_attack_direction
-	
 	update_attack_direction()
+
+func check_auto_attack():
+	if time_since_last_attack <= 0:
+		var bodies = attack_area.get_overlapping_bodies()
+		for body in bodies:
+			if body.is_in_group("enemies") or body.has_method("take_damage") and body != self:
+				if body.name != "Knight": # Don't attack self
+					enter_state(State.ATTACK)
+					perform_attack()
+					break
 
 func update_attack_direction():
 	# If we have movement, update attack area position/rotation
 	if velocity != Vector2.ZERO:
 		attack_area.rotation = velocity.angle()
 	
-	# Apply Range Scaling along the local X axis (Forward)
-	# Assuming base size covers ~0.5 lane, so range 1 = scale 1?
-	# Let's assume range_lanes acts as a multiplier.
-	# Reset scale Y to 1.0 just in case.
 	attack_area.scale = Vector2(attack_range_lanes, 1.0)
 
 func handle_input():
-	var input_vector = Input.get_vector("move_left", "move_right", "move_up", "move_down")
-	
-	if Input.is_action_just_pressed("attack"):
+	# Manual attack still works
+	if Input.is_action_just_pressed("attack") and time_since_last_attack <= 0:
 		enter_state(State.ATTACK)
 		perform_attack()
 		return
 
+	var input_vector = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	
 	if input_vector != Vector2.ZERO:
 		velocity = input_vector * get_actual_speed()
-		
-		# Only update facing direction based on horizontal input
 		if input_vector.x != 0:
 			last_direction = sign(input_vector.x)
-			
 		enter_state(State.WALK)
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, speed)
-		enter_state(State.IDLE)
+		if current_state != State.ATTACK:
+			enter_state(State.IDLE)
 
 func perform_attack():
-	# Simple melee attack: hit all enemies in range immediately
-	# In a polished game, this would be timed with the animation frame
 	var bodies = attack_area.get_overlapping_bodies()
 	for body in bodies:
-		if body.has_method("take_damage"):
+		if body.has_method("take_damage") and body != self:
 			body.take_damage(base_damage, knockback)
+	
+	time_since_last_attack = attack_cooldown
 
 func get_actual_speed() -> float:
 	var base = speed
-	if Input.is_action_pressed("run"): # Assuming run action exists
+	if Input.is_action_pressed("run"):
 		base *= run_speed_multiplier
 	if is_mounted:
 		base *= mounted_speed_multiplier
@@ -118,17 +130,14 @@ func enter_state(new_state: State):
 	if current_state == new_state:
 		return
 		
-	# Prevent moving during attack (unless we want move-attacks later)
-	if current_state == State.ATTACK and new_state != State.IDLE:
-		# Could add a cooldown or animation finish check here
-		pass
-
 	current_state = new_state
 	
 	if new_state == State.ATTACK:
-		# Use a timer to return to IDLE for now since we don't have animation signals yet
 		if get_tree():
-			get_tree().create_timer(0.3).timeout.connect(func(): current_state = State.IDLE)
+			get_tree().create_timer(0.3).timeout.connect(func(): 
+				if current_state == State.ATTACK:
+					current_state = State.IDLE
+			)
 
 func update_animations():
 	var anim = "idle"

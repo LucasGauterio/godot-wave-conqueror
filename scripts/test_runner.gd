@@ -9,37 +9,29 @@ func _init():
 	quit()
 
 func run_tests():
-	var test_dir = "res://tests/unit/"
-	scan_and_run(test_dir)
+	await run_test("res://tests/unit/test_player.gd")
+	await run_test("res://tests/unit/test_enemy.gd")
+	await run_test("res://tests/unit/test_wall.gd")
+	await run_test("res://tests/unit/test_hud.gd")
 
-func scan_and_run(path: String):
-	var dir = DirAccess.open(path)
-	if dir:
-		dir.list_dir_begin()
-		var file_name = dir.get_next()
-		while file_name != "":
-			if dir.current_is_dir():
-				if not file_name.begins_with(".") and not file_name.begins_with("_"):
-					scan_and_run(path + file_name + "/")
-			elif file_name.ends_with(".gd") and not file_name.begins_with("_"):
-				print("Running test file: " + path + file_name)
-				var test_script_res = load(path + file_name)
-				if test_script_res:
-					var test_script = test_script_res.new()
-					if test_script.get("runner") != null or "runner" in test_script:
-						test_script.runner = self
-					
-					if test_script.has_method("run"):
-						test_script.run()
-					
-					if test_script is Node:
-						test_script.queue_free()
-					elif test_script is Object and not test_script is RefCounted:
-						if test_script.has_method("free"):
-							test_script.free()
-			file_name = dir.get_next()
+func run_test(path: String):
+	print("Running test file: " + path)
+	var test_script_res = load(path)
+	if test_script_res:
+		var test_script = test_script_res.new()
+		if test_script.get("runner") != null or "runner" in test_script:
+			test_script.runner = self
+		
+		if test_script.has_method("run"):
+			test_script.run()
+		
+		if test_script is Node:
+			test_script.queue_free()
+		elif test_script is Object and not test_script is RefCounted:
+			if test_script.has_method("free"):
+				test_script.free()
 	else:
-		print("An error occurred when trying to access the path: " + path)
+		print("Failed to load test file: " + path)
 
 class TestBase:
 	var _test_count = 0

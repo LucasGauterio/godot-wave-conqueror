@@ -70,34 +70,60 @@ func move_forward(delta):
 	velocity.y = speed
 	velocity.x = 0
 
+@onready var attack_detection = $AttackDetection
+@onready var ray_cast = $RayCast2D
+
+var target_to_attack: Node2D = null
+
 func check_collisions():
-	for i in get_slide_collision_count():
-		var collision = get_slide_collision(i)
-		var collider = collision.get_collider()
+	# 1. Check overlapping bodies in the front detection area
+	var overlapping = attack_detection.get_overlapping_bodies()
+	for body in overlapping:
+		if body == self: continue
 		
-		# Check if we hit the Player or the Wall
-		if collider and (collider.name == "Knight" or collider.is_in_group("wall")):
+		# Prioritize attacking the Player or Wall
+		if body.name == "Knight" or body.is_in_group("wall") or body.get_collision_layer_value(3):
+			target_to_attack = body
 			current_state = State.ATTACK
-			break
+			return
+		
+		# If it's another enemy, just stop (prevents pushing/stacking)
+		if body.is_in_group("enemies"):
+			velocity = Vector2.ZERO
+			# We don't change state to ATTACK unless we hit a target, 
+			# but we stay in WALK with zero velocity? 
+			# Better: stay in WALK but set velocity to zero.
+			return
+
+	# 2. Check raycast for precise line-of-sight
+	if ray_cast.is_colliding():
+		var collider = ray_cast.get_collider()
+		if collider == self: return
+		
+		if collider.name == "Knight" or collider.is_in_group("wall") or collider.get_collision_layer_value(3):
+			target_to_attack = collider
+			current_state = State.ATTACK
+			return
+		
+		if collider.is_in_group("enemies"):
+			velocity = Vector2.ZERO
+			return
 
 func perform_attack():
-	# Deal damage to the target in front
-	# Since we are in ATTACK state, we assume we are touching the target
-	# We can re-verify collision or use a raycast suitable for grid logic
-	# For now, simple verification:
-	
-	for i in get_slide_collision_count():
-		var collision = get_slide_collision(i)
-		var collider = collision.get_collider()
-		
-		if collider and collider.has_method("take_damage"):
-			collider.take_damage(damage)
-			time_since_last_attack = attack_cooldown
-			# Optional: Play attack animation here
-			return
-	
-	# If no valid target found (e.g. player moved away), return to walk
-	current_state = State.WALK
+	# If target is gone or dead, look for a new one or walk
+	if not is_instance_valid(target_to_attack):
+		target_to_attack = null
+		current_state = State.WALK
+		return
+
+	# Deal damage
+	if target_to_attack.has_method("take_damage"):
+		target_to_attack.take_damage(damage)
+		time_since_last_attack = attack_cooldown
+		# Double check if target is killed immediately
+		if target_to_attack == null or (target_to_attack.has_method("get") and target_to_attack.get("current_health") <= 0):
+			target_to_attack = null
+			current_state = State.WALK
 
 func take_damage(amount: int, knockback_force: float = 0.0):
 	current_health -= amount
