@@ -129,9 +129,18 @@ func _draw():
 	draw_colored_polygon([Vector2(-8, ear_y), Vector2(-15, ear_y - 5), Vector2(-8, ear_y + 4)], body_color)
 	draw_colored_polygon([Vector2(8, ear_y), Vector2(15, ear_y - 5), Vector2(8, ear_y + 4)], body_color)
 	
-	# Spindly Arms
-	draw_line(Vector2(-8, -5 + bob_offset), Vector2(-12, 10 + bob_offset), body_color, 3) # Left Arm
-	draw_line(Vector2(8, -5 + bob_offset), Vector2(12, 10 + bob_offset), body_color, 3) # Right Arm
+	# Spindly Arms/Hands
+	var r_shoulder = Vector2(8, -5 + bob_offset)
+	var l_shoulder = Vector2(-8, -5 + bob_offset)
+	var r_hand = Vector2(12, 10 + bob_offset)
+	var l_hand = Vector2(-12, 10 + bob_offset)
+	
+	if current_state == State.ATTACK or attack_anim_timer > 0:
+		var reach = 12.0 * sin(attack_anim_timer * PI)
+		r_hand = last_face_direction * (15 + reach) + Vector2(0, bob_offset)
+
+	draw_line(l_shoulder, l_hand, body_color, 3) # Left Arm
+	draw_line(r_shoulder, r_hand, body_color, 3) # Right Arm
 
 	# 2. Draw Eyes (Black dots) based on direction
 	var eye_y = head_pos.y
@@ -144,12 +153,12 @@ func _draw():
 		var side = 1 if last_face_direction.x > 0 else -1
 		draw_circle(Vector2(4 * side, eye_y), 1.5, Color.BLACK)
 	
-	# 3. Draw Weapon (Club) during attack
+	# 3. Draw Weapon (Club) attached to hand
 	if current_state == State.ATTACK or attack_anim_timer > 0:
-		var weapon_reach = 15.0 * sin(attack_anim_timer * PI)
-		var weapon_dir = last_face_direction * (18 + weapon_reach)
-		draw_line(Vector2(0, bob_offset), weapon_dir, detail_color, 4)
-		draw_circle(weapon_dir, 6, detail_color)
+		var club_dir = last_face_direction
+		var club_tip = r_hand + club_dir * 10
+		draw_line(r_hand, club_tip, detail_color, 4)
+		draw_circle(club_tip, 6, detail_color)
 
 	# 4. Optional: Draw Debug Hitbox Outline
 	if show_debug_hitbox:

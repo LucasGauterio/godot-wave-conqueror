@@ -141,29 +141,7 @@ func _draw():
 	# Head/Helm
 	draw_circle(head_pos, 10, armor_color)
 	
-	# Arms (Humanoid) - Adjusted to narrower torso
-	draw_line(Vector2(-8, -5 + bob_offset), Vector2(-14, 5 + bob_offset), armor_color, 4) # Left Arm
-	draw_line(Vector2(8, -5 + bob_offset), Vector2(14, 5 + bob_offset), armor_color, 4) # Right Arm
-
-	# 4. Draw Helm Visor
-	var visor_y = head_pos.y - 2
-	if face_direction.y > 0.5: # Down
-		draw_rect(Rect2(-6, visor_y, 12, 2), eye_color)
-	elif face_direction.y < -0.5: # Up
-		pass 
-	else: # Side
-		var side = 1 if face_direction.x > 0 else -1
-		draw_rect(Rect2(2 * side if side > 0 else -10, visor_y, 8, 2), eye_color)
-
-	# 5. Draw Off-hand
-	if off_hand != OffHandType.NONE:
-		var off_pos = Vector2(-16 if face_direction.x >= 0 else 16, 0)
-		if off_hand == OffHandType.SHIELD:
-			draw_rect(Rect2(off_pos.x - 7, off_pos.y - 10, 14, 20), Color(0.2, 0.4, 0.7))
-		else:
-			draw_rect(Rect2(off_pos.x - 5, off_pos.y - 5, 10, 10), Color(0.3, 0.1, 0.5))
-
-	# 6. Draw Weapon
+	# 4. Calculate Weapon/Arm Direction
 	var weapon_reach_factor = sin(attack_anim_timer * PI)
 	var weapon_dir = face_direction
 	if current_state == State.ATTACK:
@@ -173,37 +151,66 @@ func _draw():
 		weapon_dir = Vector2.RIGHT if last_direction > 0 else Vector2.LEFT
 	else:
 		weapon_dir = weapon_dir.normalized()
-		
-	var base_reach = 40.0
+
+	# Hand Positions
+	var r_shoulder = Vector2(8, -5 + bob_offset)
+	var l_shoulder = Vector2(-8, -5 + bob_offset)
+	var r_hand = Vector2(12, 5 + bob_offset)
+	var l_hand = Vector2(-12, 5 + bob_offset)
+	
+	if current_state == State.ATTACK or attack_anim_timer > 0:
+		# The weapon arm extends towards the strike
+		r_hand = weapon_dir * 15 + Vector2(0, bob_offset)
+	
+	# Draw Arms
+	draw_line(l_shoulder, l_hand, armor_color, 4) # Left Arm
+	draw_line(r_shoulder, r_hand, armor_color, 4) # Right Arm (Holding Weapon)
+
+	# 5. Draw Helm Visor
+	var visor_y = head_pos.y - 2
+	if face_direction.y > 0.5: # Down
+		draw_rect(Rect2(-6, visor_y, 12, 2), eye_color)
+	elif face_direction.y < -0.5: # Up
+		pass 
+	else: # Side
+		var side = 1 if face_direction.x > 0 else -1
+		draw_rect(Rect2(2 * side if side > 0 else -10, visor_y, 8, 2), eye_color)
+
+	# 6. Draw Off-hand (Attached to Left Hand)
+	if off_hand != OffHandType.NONE:
+		if off_hand == OffHandType.SHIELD:
+			draw_rect(Rect2(l_hand.x - 7, l_hand.y - 10, 14, 20), Color(0.2, 0.4, 0.7))
+		else:
+			draw_rect(Rect2(l_hand.x - 5, l_hand.y - 5, 10, 10), Color(0.3, 0.1, 0.5))
+
+	# 7. Draw Weapon (Attached to Right Hand)
+	var base_reach = 30.0
 	var extra_reach = 30.0 * weapon_reach_factor
-	var weapon_pos = weapon_dir * (base_reach + extra_reach)
 	
 	match weapon_type:
 		WeaponType.SWORD:
-			# Slash animation: rotate the line slightly during the swing
-			var angle_offset = (attack_anim_timer - 0.5) * 1.5 # -0.75 to 0.75 radians
+			var angle_offset = (attack_anim_timer - 0.5) * 1.5
 			var slash_dir = weapon_dir.rotated(angle_offset)
-			var slash_pos = slash_dir * (base_reach + extra_reach)
-			draw_line(Vector2.ZERO, slash_pos, metal_color, 4)
-			# Add a faint slash arc "trail"
+			var weapon_tip = r_hand + slash_dir * (base_reach + extra_reach)
+			draw_line(r_hand, weapon_tip, metal_color, 4)
 			if attack_anim_timer > 0:
-				draw_arc(Vector2.ZERO, base_reach + extra_reach, 
+				draw_arc(Vector2.ZERO, 40 + extra_reach, 
 					weapon_dir.angle() - 0.5, weapon_dir.angle() + 0.5, 
 					16, Color(1, 1, 1, 0.3 * weapon_reach_factor), 2.0)
 		WeaponType.AXE:
 			var angle_offset = (attack_anim_timer - 0.5) * 2.0
 			var slash_dir = weapon_dir.rotated(angle_offset)
-			var slash_pos = slash_dir * (base_reach + extra_reach)
-			draw_line(Vector2.ZERO, slash_pos, wood_color, 4)
-			draw_rect(Rect2(slash_pos.x - 8, slash_pos.y - 8, 16, 16), metal_color)
+			var weapon_tip = r_hand + slash_dir * (base_reach + extra_reach)
+			draw_line(r_hand, weapon_tip, wood_color, 4)
+			draw_rect(Rect2(weapon_tip.x - 8, weapon_tip.y - 8, 16, 16), metal_color)
 		WeaponType.BOW:
-			draw_arc(weapon_dir * 10, 12, weapon_dir.angle() - 1, weapon_dir.angle() + 1, 12, wood_color, 3.0)
-			if attack_anim_timer > 0: # Draw arrow
-				draw_line(weapon_dir * 5, weapon_dir * (20 + 40 * weapon_reach_factor), Color.WHITE, 2)
+			draw_arc(r_hand + weapon_dir * 5, 12, weapon_dir.angle() - 1, weapon_dir.angle() + 1, 12, wood_color, 3.0)
+			if attack_anim_timer > 0:
+				draw_line(r_hand, r_hand + weapon_dir * (15 + 40 * weapon_reach_factor), Color.WHITE, 2)
 		_: # STAFF/MACE
-			# Pierce animation: straight thrust
-			draw_line(Vector2.ZERO, weapon_pos, wood_color, 4)
-			draw_circle(weapon_pos, 6, Color(0.2, 0.8, 1.0, 0.8))
+			var weapon_tip = r_hand + weapon_dir * (base_reach + extra_reach)
+			draw_line(r_hand, weapon_tip, wood_color, 4)
+			draw_circle(weapon_tip, 6, Color(0.2, 0.8, 1.0, 0.8))
 
 	# 7. Debug Hitbox
 	if show_debug_hitbox:
