@@ -159,20 +159,18 @@ func _draw():
 	
 	# 3. Draw Weapon (Club) with After-images
 	if current_state == State.ATTACK or attack_anim_timer > 0:
-		# Draw 2 Ghost trails
-		for i in range(2, 0, -1):
-			var ghost_timer = max(0, attack_anim_timer - i * 0.06)
-			if ghost_timer > 0:
-				var g_reach = 12.0 * sin(ghost_timer * PI)
-				var g_r_hand = last_face_direction * (15 + g_reach) + Vector2(0, bob_offset)
-				var g_club_tip = g_r_hand + last_face_direction * 10
-				var g_color = Color(0.4, 0.2, 0.1, 0.2 * (3-i))
-				draw_line(g_r_hand, g_club_tip, g_color, 4)
-				draw_circle(g_club_tip, 6, g_color)
+		var reach = 10.0 + 12.0 * sin(attack_anim_timer * PI)
+		var angle_span = PI / 2.0 # 90 degrees
+		var current_angle = last_face_direction.angle() + (attack_anim_timer - 0.5) * angle_span
+		
+		# Draw 1/4 circle After-image arc
+		if attack_anim_timer > 0:
+			var trail_color = Color(0.4, 0.2, 0.1, 0.3 * attack_anim_timer)
+			draw_arc(r_hand, reach + 5, current_angle - angle_span * 0.5, current_angle, 16, trail_color, 6.0)
 		
 		# Current Club
-		var club_dir = last_face_direction
-		var club_tip = r_hand + club_dir * 10
+		var club_dir = Vector2.from_angle(current_angle)
+		var club_tip = r_hand + club_dir * reach
 		draw_line(r_hand, club_tip, detail_color, 4)
 		draw_circle(club_tip, 6, detail_color)
 

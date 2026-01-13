@@ -195,37 +195,36 @@ func _draw():
 	
 	match weapon_type:
 		WeaponType.SWORD:
-			# Draw 3 After-images (Ghost trails)
-			for i in range(3, 0, -1):
-				var ghost_timer = max(0, attack_anim_timer - i * 0.05)
-				if ghost_timer > 0:
-					var g_reach = 30.0 + 30.0 * sin(ghost_timer * PI)
-					var g_angle = (ghost_timer - 0.5) * 1.5
-					var g_dir = weapon_dir.rotated(g_angle)
-					var g_tip = r_hand + g_dir * g_reach
-					draw_line(r_hand, g_tip, Color(0.8, 0.8, 0.9, 0.15 * (4-i)), 3)
+			var reach = base_reach + extra_reach
+			var angle_span = PI / 2.0 # 90 degrees (1/4 circle)
+			var current_angle = weapon_dir.angle() + (attack_anim_timer - 0.5) * angle_span
+			
+			# Draw 1/4 circle After-image arc
+			if attack_anim_timer > 0:
+				var trail_color = Color(1, 1, 1, 0.4 * weapon_reach_factor)
+				# Draw the "phantom" sweep area (using multiple arcs for thickness/fade)
+				for i in range(3):
+					var fade = 0.3 / (i + 1)
+					draw_arc(r_hand, reach - i*2, current_angle - angle_span * 0.5, current_angle, 16, Color(1, 1, 1, fade * weapon_reach_factor), 3.0)
 			
 			# Current Blade
-			var angle_offset = (attack_anim_timer - 0.5) * 1.5
-			var slash_dir = weapon_dir.rotated(angle_offset)
-			var weapon_tip = r_hand + slash_dir * (base_reach + extra_reach)
+			var slash_dir = Vector2.from_angle(current_angle)
+			var weapon_tip = r_hand + slash_dir * reach
 			draw_line(r_hand, weapon_tip, metal_color, 4)
+		
 		WeaponType.AXE:
-			# Draw 2 After-images
-			for i in range(2, 0, -1):
-				var ghost_timer = max(0, attack_anim_timer - i * 0.08)
-				if ghost_timer > 0:
-					var g_reach = 30.0 + 30.0 * sin(ghost_timer * PI)
-					var g_angle = (ghost_timer - 0.5) * 2.0
-					var g_dir = weapon_dir.rotated(g_angle)
-					var g_tip = r_hand + g_dir * g_reach
-					draw_line(r_hand, g_tip, Color(0.4, 0.2, 0.1, 0.2 * (3-i)), 3)
-					draw_rect(Rect2(g_tip.x - 6, g_tip.y - 6, 12, 12), Color(0.5, 0.5, 0.5, 0.2 * (3-i)))
+			var reach = base_reach + extra_reach
+			var angle_span = PI / 2.0 # 90 degrees
+			var current_angle = weapon_dir.angle() + (attack_anim_timer - 0.5) * angle_span
+			
+			# Draw 1/4 circle After-image arc
+			if attack_anim_timer > 0:
+				var trail_color = Color(0.6, 0.4, 0.2, 0.3 * weapon_reach_factor)
+				draw_arc(r_hand, reach, current_angle - angle_span * 0.5, current_angle, 16, trail_color, 6.0)
 
 			# Current Axe
-			var angle_offset = (attack_anim_timer - 0.5) * 2.0
-			var slash_dir = weapon_dir.rotated(angle_offset)
-			var weapon_tip = r_hand + slash_dir * (base_reach + extra_reach)
+			var slash_dir = Vector2.from_angle(current_angle)
+			var weapon_tip = r_hand + slash_dir * reach
 			draw_line(r_hand, weapon_tip, wood_color, 4)
 			draw_rect(Rect2(weapon_tip.x - 8, weapon_tip.y - 8, 16, 16), metal_color)
 		WeaponType.BOW:
